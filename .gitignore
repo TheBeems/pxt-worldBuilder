@@ -1,4 +1,6 @@
 **/.vscode/*
+
+# ignored folders
 **/builder/*
 **/core/*
 **/shapes/*
