@@ -1,0 +1,15 @@
+{
+    "name": "WorldBuilder",
+    "description": "Making building inside Minecraft:Education Edition a little easier.",
+    "dependencies": {
+        "core": "*",
+        "builder": "*"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md",
+        "main.py"
+    ],
+    "preferredEditor": "tsprj"
+}
