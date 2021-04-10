@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-08
+ * Last modified:   2021-04-10
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -11,7 +11,6 @@
 let sMessage = "";
 let sMsgColor = "§3"; // cyan
 let sValueColor = "§e"; // yellow
-let bPositionSet = false;
 let pStartPosition: Position = null;
 let pEndPosition: Position = null;
 
@@ -23,11 +22,20 @@ let pEndPosition: Position = null;
  * from aMark with the function str2pos().
  */
 class Data {
-    static nBuildBlock: number = GRASS;
-    static nMarkBlock: number = MAGENTA_CARPET;
+    static sVersion: string = "2021-04-10";
+    static bDebug: boolean = true;
     static bShowMark: boolean = true;
-    static aMarks: string[] = [];   
-    static sVersion: string = "2021-04-08";   
+    static aMarks: string[] = [];
+    static nMarkBlock: number = MAGENTA_CARPET;
+    static nBuildBlock: number = GRASS;
+    static Sphere = {
+        pCenter: pos(0,0,0),
+        nWidth: -1, 
+        nHeight: -1, 
+        nLength: -1, 
+        sPart: "F",
+        bFilled: false
+    }  
 }
 
 print(`WorldBuilder version (${colorize(Data.sVersion)}) ready!`);
@@ -46,7 +54,9 @@ function showMark(pMark: Position) {
  * @param pMark 
  */
 function hideMark(pMark: Position) {
-    blocks.place(AIR, pMark);
+    if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
+        blocks.place(AIR, pMark);
+    }
 }
 
 /**
@@ -105,7 +115,7 @@ function delMark(pMark: Position = pos(0,0,0)): boolean {
         // remove single element.
         if (Data.aMarks.removeElement(pMark.toString())) {
             hideMark(pMark) // removed the markBlock
-            print(`Mark[${i}] with pos(${colorize(pMark.toString())}) removed.`) ;
+            print(`Mark[${colorize(i)}] with pos(${colorize(pMark.toString())}) removed.`) ;
             return true;
         }
     }
@@ -156,7 +166,7 @@ function showMarks(bPrint: boolean = false): boolean {
         for (let i = 0; i < Data.aMarks.length; i++) {
             let sMark = Data.aMarks.get(i);
             showMark(str2pos(sMark));
-            bPrint ? print (`Mark[${ i}] has pos(${colorize(sMark)})`) : null;
+            bPrint ? print (`Mark[${colorize(i)}] has pos(${colorize(sMark)})`) : null;
         }
     }
     return true
@@ -173,6 +183,10 @@ function getLastMark(): Position {
     return str2pos(Data.aMarks.get(Data.aMarks.length-1));
 }
 
+function getLastMarkIndex(): number {
+    return Data.aMarks.length-1;
+}
+
 /**
  * The command to place a mark on the map.
  * @returns string
@@ -184,7 +198,7 @@ function getLastMark(): Position {
     let i = checkMark(pMark)
     if ( i < 0) {
         pMark = setMark(pMark);
-        return (`Mark[${Data.aMarks.length-1}] has been set with pos(${colorize(pMark.toString())})`); 
+        return (`Mark[${colorize(getLastMarkIndex())}] has been set with pos(${colorize(pMark.toString())})`); 
     }
     else {
         return (`§cPosition allready marked!`);
@@ -331,6 +345,7 @@ player.onItemInteracted(WOODEN_AXE, function () {
 player.onChat("fill", function (nBlockID: number, nBlockData: number = 0) {  
     if (nBlockID === 0) { nBlockID = Data.nBuildBlock }
     print(`Command took ${colorize(cmdFill(nBlockID,nBlockData))} seconds.`);
+    delMark(null);
 })
 
 /**
@@ -364,81 +379,166 @@ player.onChat("wand", function () {
     print(`You received item ID: ${sValueColor}${WOODEN_AXE} ${sMsgColor}(Wooden Axe)`)
 })
 
+player.onChatCommandCore("set", function(){
+    let sParams = player.getChatArgs("set") as string[];
+
+    if (sParams.length == 2) {
+        let sCmd = sParams[0].trim().toLowerCase();
+        let nParam = sParams[1].trim().toLowerCase();
+
+        switch (sCmd) {
+            case "width":
+                setWidth(parseInt(nParam));
+                break;
+
+            case "height":
+                setHeight(parseInt(nParam));
+                break;
+            
+            case "length":
+                setLength(parseInt(nParam));
+                break;
+            
+            case "part":
+                setPart(nParam);
+                break;
+            
+            case "block":
+                setBlock(parseInt(nParam));
+                break;
+            
+            case "center":
+                setCenter(str2pos(nParam));
+                break;
+
+        }
+    }
+})
+
 /**
  * Command: \\elip length (N/S), height (U/D), width (E/W)
  * Order of arguments: X: width (+E/-W), Y: height (+UP/-Down), Z: length (+S/-N), type: <string>
  * Creates a full hollow sphere
  */
  player.onChatCommandCore("elips", function () {
-    let args = player.getChatArgs("elips") as string[];
+    let sParams = player.getChatArgs("elips") as string[];
 
-    let width: number = 0;
-    let height: number = 0;
-    let length: number = 0;
-    let type: string = null;
-    let j: number = 0;
-
-    for (let i = 0; i < args.length; i++) {
-        if (isNaN(parseInt(args[i]))) {
-            // arg is not a number.
-            type = args[i];
-            print(args[i]);
-
-        }
-        else {
-            // arg is a number.
-            switch(j) {
-                case 0:
-                    width = parseInt(args[i]);
-                    j++;
-                    print(width);
-                    break;
-                
-                case 1:
-                    height = parseInt(args[i]);
-                    j++;
-                    print(height);
-                    break;
-                
-                case 2:
-                    length = parseInt(args[i]);
-                    j++;
-                    print(length);
-                    break;
-            }
-        }
-    }
-    
-    sphereCommand(length, height, width, type);
+    sphereCommand(sParams);
 })
 
 /**
  * Command: \\sphere X
  * Creates a full hollow sphere
  */
-player.onChat("sphere", function (radius: number) {
-    sphereCommand(radius, radius, radius, "F");
+player.onChatCommandCore("sphere", function () {
+    let sParams = player.getChatArgs("sphere") as string[];
+
+    sphereCommand(sParams);
 })
+
+function setCenter(center: Position) {
+    Data.Sphere.pCenter = center;
+    Data.bDebug ? print(`Center set to: pos(${colorize(Data.Sphere.pCenter)})`) : null;
+}
+function setWidth(width: number) {
+    Data.Sphere.nWidth = width;
+    Data.bDebug ? print(`Width(X) set to: ${colorize(Data.Sphere.nWidth)}`) : null;
+}
+function setHeight(height: number) {
+    Data.Sphere.nHeight = height;
+    Data.bDebug ? print(`Height(Y) set to: ${colorize(Data.Sphere.nHeight)}`) : null;
+}
+function setLength(length: number) {
+    Data.Sphere.nLength = length;
+    Data.bDebug ? print(`Length(Z) set to: ${colorize(Data.Sphere.nLength)}`) : null;
+}
+function setPart(part: string) {
+    Data.Sphere.sPart = part;
+    Data.bDebug ? print(`Part set to: ${colorize(Data.Sphere.sPart)}`) : null;
+}
+function setBlock(block?:number) {
+    if (block) {
+        Data.nBuildBlock = block;
+        print (`Set block to ID: ${colorize(Data.nBuildBlock)}`);
+    }
+    
+}
+
+function initSphere(sParams: string[]): boolean {
+    let n: number = 0;
+    
+    if (sParams.length == 0) {
+        if (Data.aMarks.length < 2) {
+            print (`No marks to use.`);
+            return false;
+        }
+        sParams = Data.aMarks;
+        print (`Using marks to define the shape.`);
+        return false;
+    }
+    
+    for (let i = 0; i < sParams.length; i++) {
+        if (isNaN(parseInt(sParams[i]))) {
+            // arg is not a number.
+            setPart(sParams[i]);
+        }
+        else {
+            // arg is a number.
+            switch(n) {
+                case 0:
+                    setWidth(parseInt(sParams[i]));
+                    n++;
+                    break;
+                
+                case 1:
+                    setHeight(parseInt(sParams[i]));
+                    n++;
+                    break;
+                
+                case 2:
+                    setLength(parseInt(sParams[i]));
+                    n++
+                    break;
+            }
+        }
+    }
+
+    if (Data.Sphere.nLength == -1) {
+        setLength(Data.Sphere.nWidth);
+    }
+
+    if (Data.Sphere.nHeight == -1) {
+        setHeight(Data.Sphere.nWidth);
+    }
+
+    if (Data.aMarks.length == 1 ) {
+        setCenter(str2pos(Data.aMarks[0]));
+    }
+    else {
+        setCenter(player.position());
+    }
+
+    return true;
+}
 
 /**
  * 
  * @param radius The sphere's radius
  * @param part The part of the sphere to make (F, T, B, E, W, TN, TS, BN, BS, TNW, TNE, TSW, TSE, BNW, BNE, BSW, BSE)
  */
-function sphereCommand(radiusX: number, radiusY: number, radiusZ: number, part: string) {
+function sphereCommand(sParams: string[]) {
     let startTimer = gameplay.timeQuery(GAME_TIME);
-    if (!pStartPosition) {
-        pStartPosition = player.position();
-    }
 
-    if(radiusX > 0) {
-        let amountOfBlocks = makeSphere(pStartPosition, 2, radiusX, radiusY, radiusZ, false, part);
-        let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
-
-        print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
-    }
-    else {
-        error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+    if (initSphere(sParams)) {
+        if(Data.Sphere.nWidth > 0) {
+            let amountOfBlocks = makeSphere(Data.Sphere.pCenter, Data.nBuildBlock, Data.Sphere.nWidth, Data.Sphere.nHeight, Data.Sphere.nLength, Data.Sphere.bFilled, Data.Sphere.sPart);
+            let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
+    
+            print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
+        }
+        else {
+            error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+        }
     }
 }
 
