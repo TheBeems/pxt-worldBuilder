@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-10
+ * Last modified:   2021-04-11
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -10,30 +10,30 @@
 /**
  * Declare the text colors and effects
  */
-declare const enum Text {
+class Text {
     // Colors
-    RED = "§c",
-    DARK_RED = "§4",
-    GOLD = "§6",
-    YELLOW = "§e",
-    GREEN = "§a",
-    DARK_GREEN = "§2",
-    AQUA = "§b",
-    DARK_AQUA = "§3",
-    BLUE = "§9",
-    DARK_BLUE = "§1",
-    PURPLE = "§d",
-    DARK_PURPLE = "§5",
-    WHITE = "§f",
-    GRAY = "§7",
-    DARK_GRAY = "§8",
-    BLACK = "§0",
+    static RED = "§c";
+    static DARK_RED = "§4";
+    static GOLD = "§6";
+    static YELLOW = "§e";
+    static GREEN = "§a";
+    static DARK_GREEN = "§2";
+    static AQUA = "§b";
+    static DARK_AQUA = "§3";
+    static BLUE = "§9";
+    static DARK_BLUE = "§1";
+    static PURPLE = "§d";
+    static DARK_PURPLE = "§5";
+    static WHITE = "§f";
+    static GRAY = "§7";
+    static DARK_GRAY = "§8";
+    static BLACK = "§0";
 
     // Effects
-    BOLD = "§l",
-    ITALIC = "§o",
-    UNDERLINE = "§n",
-    STRIKE = "§m",
+    static BOLD = "§l";
+    static ITALIC = "§o";
+    static UNDERLINE = "§n";
+    static STRIKE = "§m";
 }
 
 /**
@@ -473,23 +473,23 @@ player.onChatCommandCore("sphere", function () {
 
 function setCenter(center: Position) {
     Data.Sphere.pCenter = center;
-    Data.bDebug ? print(`Center set to: pos(${colorize(Data.Sphere.pCenter)})`) : null;
+    Data.bDebug ? debug(`Center set to: pos(${colorize(Data.Sphere.pCenter)})`) : null;
 }
 function setWidth(width: number) {
     Data.Sphere.nWidth = width;
-    Data.bDebug ? print(`Width(X) set to: ${colorize(Data.Sphere.nWidth)}`) : null;
+    Data.bDebug ? debug(`Width(X) set to: ${colorize(Data.Sphere.nWidth)}`) : null;
 }
 function setHeight(height: number) {
     Data.Sphere.nHeight = height;
-    Data.bDebug ? print(`Height(Y) set to: ${colorize(Data.Sphere.nHeight)}`) : null;
+    Data.bDebug ? debug(`Height(Y) set to: ${colorize(Data.Sphere.nHeight)}`) : null;
 }
 function setLength(length: number) {
     Data.Sphere.nLength = length;
-    Data.bDebug ? print(`Length(Z) set to: ${colorize(Data.Sphere.nLength)}`) : null;
+    Data.bDebug ? debug(`Length(Z) set to: ${colorize(Data.Sphere.nLength)}`) : null;
 }
 function setPart(part: string) {
     Data.Sphere.sPart = part;
-    Data.bDebug ? print(`Part set to: ${colorize(Data.Sphere.sPart)}`) : null;
+    Data.bDebug ? debug(`Part set to: ${colorize(Data.Sphere.sPart)}`) : null;
 }
 function setBlock(block?:number) {
     if (block) {
