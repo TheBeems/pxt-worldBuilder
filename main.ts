@@ -44,7 +44,7 @@ class Text {
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-10";
+    static sVersion: string = "2021-04-11";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
