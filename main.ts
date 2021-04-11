@@ -609,36 +609,36 @@ function makeSphere(pCenter: Position, block: number, radiusX: number, radiusY: 
                  * South (positive Z)   East (positive X)   Up (positive Y)
                  */
                 //Top
-                if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
+                if (part == "TSE" || part == "TS" || part == "E" || part == "T" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(x, y, z)));
                     ++affected;
                 }
-                if (part == "TNE" || part == "TN" || part == "E" || part == "T" || part == "F") {
+                if (part == "TSW" || part == "TS" || part == "W" || part == "T" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(-x, y, z)));
                     ++affected;
                 }
-                if (part == "TSW" || part == "TS" || part == "W" || part == "T" || part == "F") {
+                if (part == "TNE" || part == "TN" || part == "E" || part == "T" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(x, y, -z)));
                     ++affected;
                 }
-                if (part == "TSE" || part == "TS" || part == "E" || part == "T" || part == "F") {
+                if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
                     ++affected;
                 }
                 // Bottom
-                 if (part == "BNW" || part == "BN" || part == "W" || part == "B" || part == "F") {
+                 if (part == "BSE" || part == "BS" || part == "E" || part == "B" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(x, -y, z)));
                     ++affected;
                 }
-                if (part == "BNE" || part == "BN" || part == "E" || part == "B" || part == "F") {
+                if (part == "BSE" || part == "BS" || part == "W" || part == "B" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(-x, -y, z)));
                     ++affected;
                 }
-                if (part == "BSW" || part == "BS" || part == "W" || part == "B" || part == "F") {
+                if (part == "BNE" || part == "BN" || part == "E" || part == "B" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(x, -y, -z)));
                     ++affected;
                 }
-                if (part == "BSE" || part == "BS" || part == "E" || part == "B" || part == "F") {
+                if (part == "BNW" || part == "BN" || part == "W" || part == "B" || part == "F") {
                     blocks.place(block, positions.add(pCenter, world(-x, -y, -z)));
                     ++affected;
                 }
