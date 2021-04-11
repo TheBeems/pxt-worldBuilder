@@ -7,12 +7,34 @@
  * 
  */
 
-// Variables
-let sMessage = "";
-let sMsgColor = "§3"; // cyan
-let sValueColor = "§e"; // yellow
-let pStartPosition: Position = null;
-let pEndPosition: Position = null;
+/**
+ * Declare the text colors and effects
+ */
+declare const enum Text {
+    // Colors
+    RED = "§c",
+    DARK_RED = "§4",
+    GOLD = "§6",
+    YELLOW = "§e",
+    GREEN = "§a",
+    DARK_GREEN = "§2",
+    AQUA = "§b",
+    DARK_AQUA = "§3",
+    BLUE = "§9",
+    DARK_BLUE = "§1",
+    PURPLE = "§d",
+    DARK_PURPLE = "§5",
+    WHITE = "§f",
+    GRAY = "§7",
+    DARK_GRAY = "§8",
+    BLACK = "§0",
+
+    // Effects
+    BOLD = "§l",
+    ITALIC = "§o",
+    UNDERLINE = "§n",
+    STRIKE = "§m",
+}
 
 /**
  * Class with the Data and settings.
@@ -36,6 +58,9 @@ class Data {
         sPart: "F",
         bFilled: false
     }  
+    static sMsgColor: string = Text.DARK_AQUA; 
+    static sDbgColor: string = Text.GRAY;
+    static sValueColor: string = Text.YELLOW;
 }
 
 print(`WorldBuilder version (${colorize(Data.sVersion)}) ready!`);
@@ -235,7 +260,17 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
  * @param sMessage content of the message.
  */
  function print(sMessage: any) {
-    player.tell(mobs.target(LOCAL_PLAYER), sMsgColor + sMessage);
+    player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + sMessage);
+}
+
+/**
+ * Wisphers a debug-message to the player
+ * @param sMessage content of the message.
+ */
+ function debug(sMessage: any) {
+    if (Data.bDebug) {
+        player.tell(mobs.target(LOCAL_PLAYER), Data.sDbgColor + sMessage);
+    }
 }
 
 /**
@@ -252,7 +287,7 @@ function error(sErrorMsg: any) {
  * @returns colorized string
  */
 function colorize(sMessage: any): string {
-    sMessage = `${sValueColor} ${sMessage} ${sMsgColor}`;
+    sMessage = `${Data.sValueColor} ${sMessage} ${Data.sMsgColor}`;
     return sMessage;
 }
 
@@ -376,7 +411,7 @@ player.onChat("paste", function () {
  */
 player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
-    print(`You received item ID: ${sValueColor}${WOODEN_AXE} ${sMsgColor}(Wooden Axe)`)
+    print(`You received item ID: ${colorize(WOODEN_AXE)} (Wooden Axe)`)
 })
 
 player.onChatCommandCore("set", function(){
