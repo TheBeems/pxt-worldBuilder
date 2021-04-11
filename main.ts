@@ -605,8 +605,8 @@ function makeSphere(pCenter: Position, block: number, radiusX: number, radiusY: 
                  * T = Top     N = North   W = West     F = Full 
                  * B = Bottom  S = South   E = East
                  * 
-                 * North (negative Z)   West (negative X)   Up (positive Y)
-                 * South (positive Z)   East (positive X)   Down (negative Y)
+                 * North (negative Z)   West (negative X)   Down (negative Y)
+                 * South (positive Z)   East (positive X)   Up (positive Y)
                  */
                 //Top
                 if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
