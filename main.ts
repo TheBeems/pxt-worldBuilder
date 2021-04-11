@@ -570,11 +570,24 @@ function sphereCommand(sParams: string[]) {
             let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
     
             print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
+            resetSphere();
         }
         else {
             error(`Please specify the radius of the sphere. For example: \\sphere 5`);
         }
     }
+}
+
+/**
+ * Resets the sphere values to default
+ */
+function resetSphere() {
+        Data.Sphere.pCenter = pos(0,0,0);
+        Data.Sphere.nWidth = -1;
+        Data.Sphere.nHeight = -1;
+        Data.Sphere.nLength = -1; 
+        Data.Sphere.sPart = "F";
+        Data.Sphere.bFilled = false;
 }
 
 /**
