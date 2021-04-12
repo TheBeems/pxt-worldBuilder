@@ -424,6 +424,8 @@ player.onChatCommandCore("help", function () {
         ["help", "Shows all the commands and gives details on how to use them. Use 'help <command>'."],
         ["mark", "Place a mark at the players current position."],
         ["unmark", "Removes a mark from the players current position. Returns error when there is no mark set. Use 'unmark all' te remove all marks."],
+        ["togglemarks", "Toggles between showing or hiding the marks on the map."],
+        ["showmarks", "Shows the marks on the map and prints their positions in chat."],
         ["fill", "Fills an area with blocks. First place two marks on the map, then type 'fill' to fill it with the standard building block. Or use 'fill <blockid> <blockdata>' to specify the block to use."],
         ["sphere", "Creates a sphere with n radius. Optionally give the part you want to create. Use 'sphere <number> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
         ["elips", "Creates an elips with width, height and length. Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 16 7 T'. "],
