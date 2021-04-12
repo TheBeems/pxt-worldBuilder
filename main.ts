@@ -34,6 +34,7 @@ class Text {
     static ITALIC = "§o";
     static UNDERLINE = "§n";
     static STRIKE = "§m";
+    static RESET = "§r";
 }
 
 /**
@@ -59,7 +60,7 @@ class Data {
         bFilled: false
     }  
     static sMsgColor: string = Text.DARK_AQUA; 
-    static sDbgColor: string = Text.GRAY;
+    static sDbgColor: string = Text.DARK_GRAY;
     static sValueColor: string = Text.YELLOW;
 }
 
@@ -261,7 +262,7 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
  * @param sMessage content of the message.
  */
  function print(sMessage: any) {
-    player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + sMessage);
+    player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + "\n" + sMessage);
 }
 
 /**
@@ -270,7 +271,7 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
  */
  function debug(sMessage: any) {
     if (Data.bDebug) {
-        player.tell(mobs.target(LOCAL_PLAYER), Data.sDbgColor + sMessage);
+        player.tell(mobs.target(LOCAL_PLAYER), Data.sDbgColor + "\n" + sMessage);
     }
 }
 
@@ -279,7 +280,7 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
  * @param sErrorMsg content of the error
  */
 function error(sErrorMsg: any) {
-    player.errorMessage(sErrorMsg);
+    player.errorMessage("\n" + sErrorMsg);
 }
 
 /**
@@ -413,6 +414,36 @@ player.onChat("paste", function () {
 player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
     print(`You received item ID: ${colorize(WOODEN_AXE)} (Wooden Axe)`)
+})
+
+player.onChatCommandCore("help", function () {
+    let sParams = player.getChatArgs("help") as string[];
+    let sResults: string = "";
+
+    let aCommands = [
+        ["help", "Shows all the commands and gives details on how to use them. Use 'help <command>'."],
+        ["mark", "Place a mark at the players current position."],
+        ["unmark", "Removes a mark from the players current position. Returns error when there is no mark set. Use 'unmark all' te remove all marks."],
+        ["fill", "Fills an area with blocks. First place two marks on the map, then type 'fill' to fill it with the standard building block. Or use 'fill <blockid> <blockdata>' to specify the block to use."],
+        ["sphere", "Creates a sphere with n radius. Optionally give the part you want to create. Use 'sphere <number> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
+        ["elips", "Creates an elips with width, height and length. Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 16 7 T'. "],
+        ["set", "Sets individual settings like width, height, length, block, part and center. Use 'set block <number>' or 'set width <number>'."],
+        ["clearmarks", "Clears all the marks currently saved."]
+    ];
+
+    if (sParams.length == 0 ){
+        for (let i = 0; i < aCommands.length; i++) {
+            sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1]}\n`;
+        }
+    }
+    else {
+        for (let i = 0; i < aCommands.length; i++) {
+            if (sParams[0] == aCommands[i][0]) {
+                sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1]}\n`;
+            }
+        }
+    }
+    print(sResults);
 })
 
 player.onChatCommandCore("set", function(){
