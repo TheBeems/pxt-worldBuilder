@@ -344,10 +344,6 @@ player.onChatCommandCore("togglemarks", function(){
     }
 })
 
-player.onChatCommandCore("setblock", function() {
-    let args = player.getChatArgs("setblock") as string[]
-})
-
 
 /**
  * Set marks while using the Wooden Axe. 
