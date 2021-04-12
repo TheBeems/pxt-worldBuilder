@@ -64,9 +64,7 @@ class Data {
     static sValueColor: string = Text.YELLOW;
 }
 
-print(`WorldBuilder version (${colorize(Data.sVersion)}) ready!`);
-print(`Type 'help' for commands.`);
-
+print(`WorldBuilder version (${colorize(Data.sVersion)}) ready! \nType 'help' for commands.`);
 
 /**
  * Shows the mark
