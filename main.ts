@@ -186,7 +186,7 @@ function toggleMarks(): boolean {
  */
 function showMarks(bPrint: boolean = false): boolean {
     if (Data.aMarks.length == 0) {
-        print (`No marks set.`);
+        error (`There are no marks.`);
         return false;
     }
     else {
