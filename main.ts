@@ -373,10 +373,29 @@ player.onItemInteracted(WOODEN_AXE, function () {
  * @param nBlockID defines de block being used, defaults to Data.nBuildBlock
  * @param nBlockData further defines the block being placed. Defaults to 0 if ommited
  */
-player.onChat("fill", function (nBlockID: number, nBlockData: number = 0) {  
-    if (nBlockID === 0) { nBlockID = Data.nBuildBlock }
+player.onChatCommandCore("fill", function () { 
+    let sParams = player.getChatArgs("fill") as string[]; 
+    let nBlockID: number;
+    let nBlockData: number;
+
+    switch (sParams.length) {        
+        case 1:
+            nBlockID = parseInt(sParams[0]);
+            nBlockData = 0;
+            break;
+
+        case 2:
+            nBlockID = parseInt(sParams[0]);
+            nBlockData = parseInt(sParams[1]);
+            break;
+
+        default:
+            nBlockID = Data.nBuildBlock;
+            nBlockData = 0;
+            break;
+    }
     print(`Command took ${colorize(cmdFill(nBlockID,nBlockData))} seconds.`);
-    delMark(null);
+    //delMark(null);
 })
 
 /**
