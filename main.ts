@@ -178,11 +178,13 @@ function toggleMarks(): boolean {
 }
 
 /**
- * Shows marks in world and optionally prints them in chat.
- * @param bPrint true/false to print position in chat.
+ * Prints marks in chat and optionally shows them in the world.
+ * @param bPrint true/false to show position in world.
  * @returns true/false
  */
-function showMarks(bPrint: boolean = false): boolean {
+function showMarks(bWorld: boolean = false): boolean {
+    let sResult: string = "";
+
     if (Data.aMarks.length == 0) {
         error (`There are no marks.`);
         return false;
@@ -190,9 +192,10 @@ function showMarks(bPrint: boolean = false): boolean {
     else {
         for (let i = 0; i < Data.aMarks.length; i++) {
             let sMark = Data.aMarks.get(i);
-            showMark(str2pos(sMark));
-            bPrint ? print (`Mark[${colorize(i)}] has pos(${colorize(sMark)})`) : null;
+            bWorld ? showMark(str2pos(sMark)) : null;
+            sResult += (`Mark[${colorize(i)}] has pos(${colorize(sMark)})\n`)
         }
+        print(sResult);
     }
     return true
 }
@@ -328,9 +331,24 @@ player.onChatCommandCore("clearmarks", function(){
 })
 
 player.onChatCommandCore("showmarks", function(){
-    if(showMarks(true)) {
-        print(`---done---`);
+    let sParams = player.getChatArgs("showmarks") as string[]; 
+
+    if (sParams.length > 0) {
+        switch (sParams[0]) {
+            case "world":
+                showMarks(true);
+                break;
+            
+            default:
+                showMarks(false);
+                break;
+        }
     }
+    else {
+        showMarks(false);
+    }
+
+    
 })
 
 player.onChatCommandCore("togglemarks", function(){
@@ -358,7 +376,7 @@ player.onItemInteracted(WOODEN_AXE, function () {
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
        if (checkMark(player.position()) === -1) {
-            showMarks(false);
+            showMarks(true);
             error (`You need to stand on the mark in order to remove it.`);
         }
         else {
