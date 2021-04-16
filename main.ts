@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-12
+ * Last modified:   2021-04-16
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -45,7 +45,7 @@ class Text {
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-12";
+    static sVersion: string = "2021-04-16";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
@@ -251,8 +251,14 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
             pFrom, pTo, 
             FillOperation.Replace
         );
-
-        print(`Filled pos(${colorize(pFrom)}) to pos(${colorize(pTo)}) with blockID: ${colorize(nBlockID)} and blockData: ${colorize(nBlockData)}`);
+        
+        let msg = `Filled pos(${colorize(pFrom)}) to pos(${colorize(pTo)}) with blockID: ${colorize(nBlockID)}`;
+        if (nBlockID >= 65536) {
+            print(msg); 
+        }
+        else {
+            print(msg + `and blockData: ${colorize(nBlockData)}`)
+        }
     }
 
     return (gameplay.timeQuery(GAME_TIME)-startTimer)/20;
@@ -456,17 +462,33 @@ player.onChatCommandCore("help", function () {
     let sResults: string = "";
 
     let aCommands = [
-        ["help", "Shows all the commands and gives details on how to use them. Use 'help <command>'."],
-        ["mark", "Place a mark at the players current position."],
-        ["unmark", "Removes a mark from the players current position. Returns error when there is no mark set. Use 'unmark all' te remove all marks."],
-        ["togglemarks", "Toggles between showing or hiding the marks on the map."],
-        ["showmarks", "Prints the marks in chat. Use 'showmarks world' to also show the marks in the world."],
-        ["fill", "Fills an area with blocks. First place two marks on the map, then type 'fill' to fill it with the standard building block. Or use 'fill <blockid> <blockdata>' to specify the block to use."],
-        ["sphere", "Creates a sphere with n radius. Optionally give the part you want to create. Use 'sphere <number> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
-        ["elips", "Creates an elips with width, height and length. Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 16 7 T'. "],
-        ["set", "Sets individual settings like width, height, length, block, part and center. Use 'set block <number>' or 'set width <number>'."],
-        ["clearmarks", "Clears all the marks currently saved."],
-        ["wand", "Gives a Wooden Axe so you can easily place marks in the world by right clicking with it."]
+        ["help", 
+            "Shows a list of all the commands. Use 'help <command>' for more details.", 
+            "You need more help on the help command? You are helpless my friend..."],
+        ["mark", 
+            "Place a mark at the players current position.",
+            "There are no details..."],
+        ["unmark", 
+            "Removes a mark from the players current position.", 
+            "When you try to unmark when there is no mark, it return an error. Use 'unmark all' te remove all marks."],
+        ["togglemarks", 
+            "Toggles between showing or hiding the marks on the map."],
+        ["showmarks", 
+            "Prints the marks in chat.", 
+            "Use 'showmarks world' to also show the marks in the world."],
+        ["fill", 
+            "Fills an area with blocks.",
+            "First place two marks on the map, then type 'fill' to fill it with the standard building block. Or use 'fill <blockid> <blockdata>' to specify the block to use."],
+        ["sphere", 
+            "Creates a sphere with n radius. Optionally give the part you want to create. Use 'sphere <number> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
+        ["elips", 
+            "Creates an elips with width, height and length. Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 16 7 T'. "],
+        ["set", 
+            "Sets individual settings like width, height, length, block, part and center. Use 'set block <number>' or 'set width <number>'."],
+        ["clearmarks", 
+            "Clears all the marks currently saved."],
+        ["wand", 
+            "Gives a Wooden Axe so you can easily place marks in the world by right clicking with it."]
     ];
 
     // No certain command to show help for.
@@ -478,45 +500,52 @@ player.onChatCommandCore("help", function () {
     else { // show the help of a particular command.
         for (let i = 0; i < aCommands.length; i++) {
             if (sParams[0] == aCommands[i][0]) {
-                sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1]}\n`;
+                sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1] + `\n`+Text.PURPLE+`Details: ` + aCommands[i][2]}\n`;
             }
         }
     }
     print(sResults);
 })
 
+/**
+ * Sets different paramters in the game through commands.
+ */
 player.onChatCommandCore("set", function(){
     let sParams = player.getChatArgs("set") as string[];
 
-    if (sParams.length == 2) {
+    if (sParams.length >= 2) {
         let sCmd = sParams[0].trim().toLowerCase();
-        let nParam = sParams[1].trim().toLowerCase();
+        let sParam = sParams[1].trim().toLowerCase();
 
         switch (sCmd) {
             case "width":
-                setWidth(parseInt(nParam));
+                setWidth(parseInt(sParam));
                 break;
 
             case "height":
-                setHeight(parseInt(nParam));
+                setHeight(parseInt(sParam));
                 break;
             
             case "length":
-                setLength(parseInt(nParam));
+                setLength(parseInt(sParam));
                 break;
             
             case "part":
-                setPart(nParam);
+                setPart(sParam);
                 break;
             
             case "block":
-                setBlock(parseInt(nParam));
+                setBlock(parseInt(sParam));
                 break;
             
             case "center":
-                setCenter(str2pos(nParam));
+                setCenter(str2pos(sParam));
                 break;
-
+        }
+    }
+    else {
+        if (sParams.length == 1 && sParams[0].trim().toLowerCase() == "block") {
+            setBlock(null);
         }
     }
 })
@@ -567,7 +596,32 @@ function setBlock(block?:number) {
         Data.nBuildBlock = block;
         print (`Set block to ID: ${colorize(Data.nBuildBlock)}`);
     }
+    else {
+        Data.nBuildBlock = getBlock();
+    }
     
+}
+
+/**
+ * Gets the ENUMval of the type of block player is standing on.
+ * @returns number
+ */
+function getBlock(): number {
+    agent.teleportToPlayer();
+
+    let blockID = agent.inspect(AgentInspection.Block, DOWN);
+    let blockENUM: number;     
+
+    for (let i = 1; i < 16; i++) {
+        blockENUM = 65536 * i + blockID;
+
+        if (blocks.testForBlock(blockENUM, positions.add(agent.getPosition(), pos(0, -1, 0)))) {
+            print(`Block ENUM = ${blockENUM}`);
+            return blockENUM;
+        }
+    }
+    print(`BlockID = ${blockID}`);
+    return blockID;
 }
 
 function initSphere(sParams: string[]): boolean {
