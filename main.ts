@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-16
+ * Last modified:   2021-04-17
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -10,7 +10,7 @@
 /**
  * Declare the text colors and effects
  */
-class Text {
+ class Text {
     // Colors
     static RED = "§c";
     static DARK_RED = "§4";
@@ -45,7 +45,7 @@ class Text {
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-16";
+    static sVersion: string = "2021-04-17";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
@@ -64,174 +64,48 @@ class Data {
     static sValueColor: string = Text.YELLOW;
 }
 
-print(`WorldBuilder version (${colorize(Data.sVersion)}) ready! \nType 'help' for commands.`);
 
-/**
- * Shows the mark
- * @param pMark 
- */
-function showMark(pMark: Position) {
-    blocks.place(Data.nMarkBlock, pMark);
+function setCenter(center: Position) {
+    Data.Sphere.pCenter = center;
+    Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.Sphere.pCenter)})`) : null;
 }
-
-/**
- * Hides the mark
- * @param pMark 
- */
-function hideMark(pMark: Position) {
-    if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
-        blocks.place(AIR, pMark);
+function setWidth(width: number) {
+    Data.Sphere.nWidth = width;
+    Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.Sphere.nWidth)}`) : null;
+}
+function setHeight(height: number) {
+    Data.Sphere.nHeight = height;
+    Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.Sphere.nHeight)}`) : null;
+}
+function setLength(length: number) {
+    Data.Sphere.nLength = length;
+    Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.Sphere.nLength)}`) : null;
+}
+function setPart(part: string) {
+    Data.Sphere.sPart = part;
+    Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.Sphere.sPart)}`) : null;
+}
+function setBlock(block?:number) {
+    if (block) {
+        Data.nBuildBlock = block;
+        console.print (`Set block to ID: ${console.colorize(Data.nBuildBlock)}`);
     }
-}
-
-/**
- * Sets the mark in aMarks and 
- * shows it in the world.
- * @param pMark 
- */
-function setMark(pMark: Position = pos(0,0,0)): Position {
-    Data.aMarks.push(pMark.toString());
-
-    if (Data.bShowMark) {
-        showMark(pMark);
+    else {
+        Data.nBuildBlock = getBlock();
     }
-    return getLastMark();
-}
-
-/**
- * Checks wheter the position is allready been set in aMarks.
- * @param pMark position to check
- * @returns -1 if not found, >= 0 if found
- */
-function checkMark(pMark: Position = pos(0,0,0)): number {
-   return Data.aMarks.indexOf(pMark.toString());
-}
-
-/**
- * Converts a string into a Position.
- * @param sMark string to convert 
- * @returns position X, Y, Z
- */
-function str2pos (sMark: string): Position {
-    if (sMark == "") {
-        return undefined;
-    }
-    let args = sMark.split(" ");
     
-    return world( parseInt(args[0], 10), parseInt(args[1], 10), parseInt(args[2], 10) );
 }
 
-/**
- * Removing a mark from a certain index, or clean out
- * all the marks when no index has been given.
+/******************************************************************************
  * 
- * @param nIndex the index to remove from Data.aMarks
- * @returns true on succes or false when there are no marks.
- */
-function delMark(pMark: Position = pos(0,0,0)): boolean {
-    if (Data.aMarks.length == 0) {
-        return false;
-    }
+ *  File: src/01-index.ts
+ *  Description: lists all the chatcommands that you can use in worldBuilder.
+ * 
+ ******************************************************************************/
 
-    // Delete given position.
-    if (pMark != null) {
-        let i = Data.aMarks.indexOf(pMark.toString());
+console.print(`WorldBuilder version (${console.colorize(Data.sVersion)}) ready! \nType 'help' for commands.`);
 
-        // remove single element.
-        if (Data.aMarks.removeElement(pMark.toString())) {
-            hideMark(pMark) // removed the markBlock
-            print(`Mark[${colorize(i)}] with pos(${colorize(pMark.toString())}) removed.`) ;
-            return true;
-        }
-    }
 
-    while (Data.aMarks.length) {
-        let sMark = Data.aMarks.get(Data.aMarks.length-1);
-        hideMark(str2pos(sMark));
-        Data.aMarks.pop();
-    }
-    
-    return true;
-}
-
-/**
- * Toggles between showing or hidding the marks.
- * @return true/false
- */
-function toggleMarks(): boolean {
-    if (Data.aMarks.length == 0) {
-        return undefined;
-    }
-
-    Data.bShowMark = (!Data.bShowMark);
-
-    for (let i = 0; i < Data.aMarks.length; i++) {
-        let sMark = Data.aMarks.get(i);
-        if (Data.bShowMark) {
-            showMark(str2pos(sMark));
-        }
-        else {
-            hideMark(str2pos(sMark));
-        }
-    }
-    return Data.bShowMark;
-}
-
-/**
- * Prints marks in chat and optionally shows them in the world.
- * @param bPrint true/false to show position in world.
- * @returns true/false
- */
-function showMarks(bWorld: boolean = false): boolean {
-    let sResult: string = "";
-
-    if (Data.aMarks.length == 0) {
-        error (`There are no marks.`);
-        return false;
-    }
-    else {
-        for (let i = 0; i < Data.aMarks.length; i++) {
-            let sMark = Data.aMarks.get(i);
-            bWorld ? showMark(str2pos(sMark)) : null;
-            sResult += (`Mark[${colorize(i)}] has pos(${colorize(sMark)})\n`)
-        }
-        print(sResult);
-    }
-    return true
-}
-
-/**
- * Returns the last position in aMarks.
- * @returns Position
- */
-function getLastMark(): Position {
-    if (Data.aMarks.length == 0) {
-        return null;
-    }
-    return str2pos(Data.aMarks.get(Data.aMarks.length-1));
-}
-
-function getLastMarkIndex(): number {
-    return Data.aMarks.length-1;
-}
-
-/**
- * The command to place a mark on the map.
- * @returns string
- */
- function cmdMark(): string {
-    let pMark = player.position();
-
-    // Check if position is in aMarks.
-    let i = checkMark(pMark)
-    if ( i < 0) {
-        pMark = setMark(pMark);
-        return (`Mark[${colorize(getLastMarkIndex())}] has been set with pos(${colorize(pMark.toString())})`); 
-    }
-    else {
-        return (`§cPosition allready marked!`);
-    }
-}
 
 /**
  * The command to fill an area between two positions.
@@ -243,8 +117,8 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
     let startTimer = gameplay.timeQuery(GAME_TIME);
 
     if (Data.aMarks.length > 1) {
-        let pFrom = str2pos(Data.aMarks[0]);
-        let pTo = getLastMark();
+        let pFrom = marks.str2pos(Data.aMarks[0]);
+        let pTo = marks.getLastPos();
 
         blocks.fill(
             blocks.blockWithData(nBlockID, nBlockData), 
@@ -252,127 +126,32 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
             FillOperation.Replace
         );
         
-        let msg = `Filled pos(${colorize(pFrom)}) to pos(${colorize(pTo)}) with blockID: ${colorize(nBlockID)}`;
+        let msg = `Filled pos(${console.colorize(pFrom)}) to pos(${console.colorize(pTo)}) with blockID: ${console.colorize(nBlockID)}`;
         if (nBlockID >= 65536) {
-            print(msg); 
+            console.print(msg); 
         }
         else {
-            print(msg + `and blockData: ${colorize(nBlockData)}`)
+            console.print(msg + `and blockData: ${console.colorize(nBlockData)}`)
         }
     }
 
     return (gameplay.timeQuery(GAME_TIME)-startTimer)/20;
 }
 
-/**
- * Wisphers a message to the player
- * @param sMessage content of the message.
- */
- function print(sMessage: any) {
-    player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + "\n" + sMessage);
-}
 
-/**
- * Wisphers a debug-message to the player
- * @param sMessage content of the message.
- */
- function debug(sMessage: any) {
-    if (Data.bDebug) {
-        player.tell(mobs.target(LOCAL_PLAYER), Data.sDbgColor + "\n" + sMessage);
-    }
-}
 
-/**
- * Wisphers an errormessage to the player
- * @param sErrorMsg content of the error
- */
-function error(sErrorMsg: any) {
-    player.errorMessage("\n" + sErrorMsg);
-}
 
-/**
- * Colorize a string with sValueColor.
- * @param sMessage string to colorize
- * @returns colorized string
- */
-function colorize(sMessage: any): string {
-    sMessage = `${Data.sValueColor} ${sMessage} ${Data.sMsgColor}`;
-    return sMessage;
-}
 
-/**
- * Command to set a mark in the world.
- */
-player.onChatCommandCore("mark", function(){
-    print(cmdMark());   
-      
-})
-
-/**
- * Command to remove a mark from the world.
- */
-player.onChatCommandCore("unmark", function(){
-    let args = player.getChatArgs("unmark") as string[];
-
-    for (let arg of args) {
-        switch(arg) {
-            case "this":
-                print (delMark(player.position()) ? "This mark removed." : "There is no mark.");
-                break;
-            
-            case "all":
-                print (delMark(null) ? "All marks removed." : "There were no marks.");
-                break;
-            
-            default:
-                print (delMark(player.position()) ? "A Mark removed." : "There is no mark.");
-                break;
-        }
-    }
-    
-})
-
-player.onChatCommandCore("clearmarks", function(){
-    print (delMark(null) ? "All marks removed." : "There were no marks.");
-})
-
-player.onChatCommandCore("showmarks", function(){
-    let sParams = player.getChatArgs("showmarks") as string[]; 
-
-    if (sParams.length > 0) {
-        switch (sParams[0]) {
-            case "world":
-                showMarks(true);
-                break;
-            
-            default:
-                showMarks(false);
-                break;
-        }
-    }
-    else {
-        showMarks(false);
-    }
-
-    
-})
-
-player.onChatCommandCore("togglemarks", function(){
-    if (toggleMarks()){
-        print (`Marks ${colorize("shown")}.`)
-    }
-    else {
-        print (`Marks ${colorize("hidden")}.`)
-    }
-})
 
 
 /**
  * Set marks while using the Wooden Axe. 
  */
 player.onItemInteracted(WOODEN_AXE, function () {
-    print(cmdMark());
+    console.print(marks.place());
 })
+
+
 
 /**
  * Removes the mark from Data.aMarks when a player
@@ -381,83 +160,308 @@ player.onItemInteracted(WOODEN_AXE, function () {
  */
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
-       if (checkMark(player.position()) === -1) {
-            showMarks(true);
-            error (`You need to stand on the mark in order to remove it.`);
+       if (marks.check(player.position()) === -1) {
+            marks.print(true);
+            console.error (`You need to stand on the mark in order to remove it.`);
         }
         else {
-            delMark(player.position());
+            marks.remove(player.position());
         } 
     }
-    
 });
 
+
+
 /**
- * Command: fill <block ID> <block Data>
- * @param nBlockID defines de block being used, defaults to Data.nBuildBlock
- * @param nBlockData further defines the block being placed. Defaults to 0 if ommited
+ * Gets the ENUMval of the type of block player is standing on.
+ * @returns number
  */
-player.onChatCommandCore("fill", function () { 
-    let sParams = player.getChatArgs("fill") as string[]; 
-    let nBlockID: number;
-    let nBlockData: number;
+function getBlock(): number {
+    agent.teleportToPlayer();
 
-    switch (sParams.length) {        
-        case 1:
-            nBlockID = parseInt(sParams[0]);
-            nBlockData = 0;
-            break;
+    let blockID = agent.inspect(AgentInspection.Block, DOWN);
+    let blockENUM: number;     
 
-        case 2:
-            nBlockID = parseInt(sParams[0]);
-            nBlockData = parseInt(sParams[1]);
-            break;
+    for (let i = 1; i < 16; i++) {
+        blockENUM = 65536 * i + blockID;
 
-        default:
-            nBlockID = Data.nBuildBlock;
-            nBlockData = 0;
-            break;
+        if (blocks.testForBlock(blockENUM, positions.add(agent.getPosition(), pos(0, -1, 0)))) {
+            console.print(`Block ENUM = ${blockENUM}`);
+            return blockENUM;
+        }
     }
-    print(`Command took ${colorize(cmdFill(nBlockID,nBlockData))} seconds.`);
-    //delMark(null);
-})
+    console.print(`BlockID = ${blockID}`);
+    return blockID;
+}
 
-/**
- * Command: air
- * Fills the area between Start- and EndPosition with air
- */
-player.onChat("air", function () {
-    print(`Command took ${colorize(cmdFill(AIR))} seconds.`);
-})
 
-player.onChat("copy", function () {
-    if (Data.aMarks.length == 2) {
-        builder.teleportTo(str2pos(Data.aMarks[0]));
-        builder.mark();
-        builder.teleportTo(getLastMark());
-        builder.copy();
+/******************************************************************************
+ * 
+ *  File: src/02-console.ts
+ *  Description: console functions to display messages to the player.
+ * 
+ ******************************************************************************/
+
+namespace console {
+    /**
+     * Wisphers a message to the player
+     * @param sMessage content of the message.
+     */
+    export function print(sMessage: any) {
+        player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + "\n" + sMessage);
     }
-})
 
-player.onChat("paste", function () {
-    builder.teleportTo(player.position());
-    builder.paste();
-})
+    /**
+     * Wisphers a debug-message to the player
+     * @param sMessage content of the message.
+     */
+    export function debug(sMessage: any) {
+        if (Data.bDebug) {
+            player.tell(mobs.target(LOCAL_PLAYER), Data.sDbgColor + "\n" + sMessage);
+        }
+    }
 
-/**
- * Command: wand
- * Summons a Wooden Axe to the players inventory
- */
-player.onChat("wand", function () {
-    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
-    print(`You received item ID: ${colorize(WOODEN_AXE)} (Wooden Axe)`)
-})
+    /**
+     * Wisphers an errormessage to the player
+     * @param sErrorMsg content of the error
+     */
+    export function error(sErrorMsg: any) {
+        player.errorMessage("\n" + sErrorMsg);
+    }
+
+    /**
+     * Colorize a string with sValueColor.
+     * @param sMessage string to colorize
+     * @returns colorized string
+     */
+    export function colorize(sMessage: any): string {
+        sMessage = `${Data.sValueColor} ${sMessage} ${Data.sMsgColor}`;
+        return sMessage;
+    }
+}
+
+/******************************************************************************
+ * 
+ *  File: src/03-marks.ts
+ *  Description: All the functions in order to interact with marks.
+ * 
+ ******************************************************************************/
+
+
+
+namespace marks {
+    
+    /**
+     * Shows the mark
+     * @param pMark 
+     */
+    function show(pMark: Position) {
+        blocks.place(Data.nMarkBlock, pMark);
+    }
+
+
+
+    /**
+     * Hides the mark
+     * @param pMark 
+     */
+    function hide(pMark: Position) {
+        if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
+            blocks.place(AIR, pMark);
+        }
+    }
+
+
+
+    /**
+     * Sets the mark in aMarks and 
+     * shows it in the world.
+     * @param pMark 
+     */
+    function set(pMark: Position = pos(0,0,0)): Position {
+        Data.aMarks.push(pMark.toString());
+
+        if (Data.bShowMark) {
+            show(pMark);
+        }
+        return getLastPos();
+    }
+
+
+
+    /**
+     * Checks wheter the position is allready been set in aMarks.
+     * @param pMark position to check
+     * @returns -1 if not found, >= 0 if found
+     */
+    export function check(pMark: Position = pos(0,0,0)): number {
+        return Data.aMarks.indexOf(pMark.toString());
+    }
+
+
+
+    /**
+     * Converts a string into a Position.
+     * @param sMark string to convert 
+     * @returns position X, Y, Z
+     */
+    export function str2pos (sMark: string): Position {
+        if (sMark == "") {
+            return undefined;
+        }
+        let args = sMark.split(" ");
+        
+        return world( parseInt(args[0], 10), parseInt(args[1], 10), parseInt(args[2], 10) );
+    }
+
+
+
+
+    /**
+     * Removing a mark from a certain index, or clean out
+     * all the marks when no index has been given.
+     * 
+     * @param nIndex the index to remove from Data.aMarks
+     * @returns true on succes or false when there are no marks.
+     */
+    export function remove(pMark: Position = pos(0,0,0)): boolean {
+        if (Data.aMarks.length == 0) {
+            return false;
+        }
+
+        // Delete given position.
+        if (pMark != null) {
+            let i = Data.aMarks.indexOf(pMark.toString());
+
+            // remove single element.
+            if (Data.aMarks.removeElement(pMark.toString())) {
+                hide(pMark) // removed the markBlock
+                console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
+                return true;
+            }
+        }
+
+        while (Data.aMarks.length) {
+            let sMark = Data.aMarks.get(Data.aMarks.length-1);
+            hide(str2pos(sMark));
+            Data.aMarks.pop();
+        }
+        
+        return true;
+    }
+
+
+
+
+    /**
+     * Toggles between showing or hidding the marks.
+     * @return true/false
+     */
+    export function toggle(): boolean {
+        if (Data.aMarks.length == 0) {
+            return undefined;
+        }
+
+        Data.bShowMark = (!Data.bShowMark);
+
+        for (let i = 0; i < Data.aMarks.length; i++) {
+            let sMark = Data.aMarks.get(i);
+            if (Data.bShowMark) {
+                show(str2pos(sMark));
+            }
+            else {
+                hide(str2pos(sMark));
+            }
+        }
+        return Data.bShowMark;
+    }
+
+
+
+
+    /**
+     * Prints marks in chat and optionally shows them in the world.
+     * @param bPrint true/false to show position in world.
+     * @returns true/false
+     */
+    export function print(bWorld: boolean = false): boolean {
+        let sResult: string = "";
+
+        if (Data.aMarks.length == 0) {
+            console.error (`There are no marks.`);
+            return false;
+        }
+        else {
+            for (let i = 0; i < Data.aMarks.length; i++) {
+                let sMark = Data.aMarks.get(i);
+                bWorld ? show(str2pos(sMark)) : null;
+                sResult += (`Mark[${console.colorize(i)}] has pos(${console.colorize(sMark)})\n`)
+            }
+            console.print(sResult);
+        }
+        return true
+    }
+
+
+
+
+    /**
+     * Returns the last position in aMarks.
+     * @returns Position
+     */
+    export function getLastPos(): Position {
+        if (Data.aMarks.length == 0) {
+            return null;
+        }
+        return str2pos(Data.aMarks.get(Data.aMarks.length-1));
+    }
+
+
+
+    /**
+     * Returns the last index from aMarks.
+     * @returns index number of aMarks
+     */
+    export function getLastIndex(): number {
+        return Data.aMarks.length-1;
+    }
+
+
+
+
+    /**
+     * The command to place a mark on the map.
+     * @returns string
+     */
+    export function place(): string {
+        let pMark = player.position();
+
+        // Check if position is in aMarks.
+        let i = check(pMark)
+        if ( i < 0) {
+            pMark = set(pMark);
+            return (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark.toString())})`); 
+        }
+        else {
+            return (`§cPosition allready marked!`);
+        }
+    }
+ 
+}
+
+/******************************************************************************
+ * 
+ *  File: src/04-chatcommands.ts
+ *  Description: lists all the chatcommands that you can use in worldBuilder.
+ * 
+ ******************************************************************************/
+
 
 /**
  * Command: help <cmd>
  * Prints the help in chat. Use 'help <cmd>' to get more details on the command.
  */
-player.onChatCommandCore("help", function () {
+ player.onChatCommandCore("help", function () {
     let sParams = player.getChatArgs("help") as string[];
     let sResults: string = "";
 
@@ -470,7 +474,7 @@ player.onChatCommandCore("help", function () {
             "There are no details..."],
         ["unmark", 
             "Removes a mark from the players current position.", 
-            "When you try to unmark when there is no mark, it return an error. Use 'unmark all' te remove all marks."],
+            "When you try to unmark when there is no mark, it return an console.error. Use 'unmark all' te remove all marks."],
         ["togglemarks", 
             "Toggles between showing or hiding the marks on the map."],
         ["showmarks", 
@@ -494,18 +498,20 @@ player.onChatCommandCore("help", function () {
     // No certain command to show help for.
     if (sParams.length == 0 ){
         for (let i = 0; i < aCommands.length; i++) {
-            sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1]}\n`;
+            sResults +=`${Text.BOLD+console.colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1]}\n`;
         }
     }
     else { // show the help of a particular command.
         for (let i = 0; i < aCommands.length; i++) {
             if (sParams[0] == aCommands[i][0]) {
-                sResults +=`${Text.BOLD+colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1] + `\n`+Text.PURPLE+`Details: ` + aCommands[i][2]}\n`;
+                sResults +=`${Text.BOLD+console.colorize(aCommands[i][0])+Text.RESET+Data.sMsgColor} = ${aCommands[i][1] + `\n`+Text.PURPLE+`Details: ` + aCommands[i][2]}\n`;
             }
         }
     }
-    print(sResults);
+    console.print(sResults);
 })
+
+
 
 /**
  * Sets different paramters in the game through commands.
@@ -539,7 +545,7 @@ player.onChatCommandCore("set", function(){
                 break;
             
             case "center":
-                setCenter(str2pos(sParam));
+                setCenter(marks.str2pos(sParam));
                 break;
         }
     }
@@ -550,6 +556,167 @@ player.onChatCommandCore("set", function(){
     }
 })
 
+
+
+/**
+ * Places a mark in the world.
+ */
+ player.onChatCommandCore("mark", function(){
+    console.print(marks.place());   
+      
+})
+
+
+
+/**
+ * Command to remove a mark from the world.
+ */
+player.onChatCommandCore("unmark", function(){
+    let args = player.getChatArgs("unmark") as string[];
+
+    for (let arg of args) {
+        switch(arg) {
+            case "this":
+                console.print (marks.remove(player.position()) ? "This mark removed." : "There is no mark.");
+                break;
+            
+            case "all":
+                console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+                break;
+            
+            default:
+                console.print (marks.remove(player.position()) ? "A Mark removed." : "There is no mark.");
+                break;
+        }
+    }
+    
+})
+
+
+
+/**
+ * Clears all the marks from memory.
+ */
+player.onChatCommandCore("clearmarks", function(){
+    console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+})
+
+
+
+/**
+ * Prints the marks in chat and optionally shows them
+ * in the world when using 'showmarks world'.
+ */
+player.onChatCommandCore("showmarks", function(){
+    let sParams = player.getChatArgs("showmarks") as string[]; 
+
+    if (sParams.length > 0) {
+        switch (sParams[0]) {
+            case "world":
+                marks.print(true);
+                break;
+            
+            default:
+                marks.print(false);
+                break;
+        }
+    }
+    else {
+        marks.print(false);
+    }  
+})
+
+
+
+/**
+ * Toggles between showing and hidding the marks in the world.
+ */
+player.onChatCommandCore("togglemarks", function(){
+    if (marks.toggle()){
+        console.print (`Marks ${console.colorize("shown")}.`)
+    }
+    else {
+        console.print (`Marks ${console.colorize("hidden")}.`)
+    }
+})
+
+
+
+/**
+ * Command: fill <block ID> <block Data>
+ * @param nBlockID defines de block being used, defaults to Data.nBuildBlock
+ * @param nBlockData further defines the block being placed. Defaults to 0 if ommited
+ */
+ player.onChatCommandCore("fill", function () { 
+    let sParams = player.getChatArgs("fill") as string[]; 
+    let nBlockID: number;
+    let nBlockData: number;
+
+    switch (sParams.length) {        
+        case 1:
+            nBlockID = parseInt(sParams[0]);
+            nBlockData = 0;
+            break;
+
+        case 2:
+            nBlockID = parseInt(sParams[0]);
+            nBlockData = parseInt(sParams[1]);
+            break;
+
+        default:
+            nBlockID = Data.nBuildBlock;
+            nBlockData = 0;
+            break;
+    }
+    console.print(`Command took ${console.colorize(cmdFill(nBlockID,nBlockData))} seconds.`);
+})
+
+
+
+/**
+ * Command: air
+ * Fills the area between Start- and EndPosition with air
+ */
+player.onChat("air", function () {
+    console.print(`Command took ${console.colorize(cmdFill(AIR))} seconds.`);
+})
+
+
+
+/**
+ * Copies the blocks within two marks
+ */
+player.onChat("copy", function () {
+    if (Data.aMarks.length == 2) {
+        builder.teleportTo(marks.str2pos(Data.aMarks[0]));
+        builder.mark();
+        builder.teleportTo(marks.getLastPos());
+        builder.copy();
+    }
+})
+
+
+
+/**
+ * Pastes the copied blocks to current position.
+ */
+player.onChat("paste", function () {
+    builder.teleportTo(player.position());
+    builder.paste();
+})
+
+
+
+/**
+ * Summons a Wooden Axe to the players inventory
+ */
+player.onChat("wand", function () {
+    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
+    console.print(`You received item ID: ${console.colorize(WOODEN_AXE)} (Wooden Axe)`)
+})
+
+
+
 /**
  * Command: \\elip length (N/S), height (U/D), width (E/W)
  * Order of arguments: X: width (+E/-W), Y: height (+UP/-Down), Z: length (+S/-N), type: <string>
@@ -558,8 +725,10 @@ player.onChatCommandCore("set", function(){
  player.onChatCommandCore("elips", function () {
     let sParams = player.getChatArgs("elips") as string[];
 
-    sphereCommand(sParams);
+    sphere.build(sParams);
 })
+
+
 
 /**
  * Command: \\sphere X
@@ -568,266 +737,238 @@ player.onChatCommandCore("set", function(){
 player.onChatCommandCore("sphere", function () {
     let sParams = player.getChatArgs("sphere") as string[];
 
-    sphereCommand(sParams);
+    sphere.build(sParams);
 })
 
-function setCenter(center: Position) {
-    Data.Sphere.pCenter = center;
-    Data.bDebug ? debug(`Center set to: pos(${colorize(Data.Sphere.pCenter)})`) : null;
-}
-function setWidth(width: number) {
-    Data.Sphere.nWidth = width;
-    Data.bDebug ? debug(`Width(X) set to: ${colorize(Data.Sphere.nWidth)}`) : null;
-}
-function setHeight(height: number) {
-    Data.Sphere.nHeight = height;
-    Data.bDebug ? debug(`Height(Y) set to: ${colorize(Data.Sphere.nHeight)}`) : null;
-}
-function setLength(length: number) {
-    Data.Sphere.nLength = length;
-    Data.bDebug ? debug(`Length(Z) set to: ${colorize(Data.Sphere.nLength)}`) : null;
-}
-function setPart(part: string) {
-    Data.Sphere.sPart = part;
-    Data.bDebug ? debug(`Part set to: ${colorize(Data.Sphere.sPart)}`) : null;
-}
-function setBlock(block?:number) {
-    if (block) {
-        Data.nBuildBlock = block;
-        print (`Set block to ID: ${colorize(Data.nBuildBlock)}`);
-    }
-    else {
-        Data.nBuildBlock = getBlock();
-    }
+/******************************************************************************
+ * 
+ *  File: src/05-shapes.sphere.ts
+ *  Description: Functions to initialise and build a sphere or elipsoid.
+ * 
+ ******************************************************************************/
+
+namespace sphere {
     
-}
 
-/**
- * Gets the ENUMval of the type of block player is standing on.
- * @returns number
- */
-function getBlock(): number {
-    agent.teleportToPlayer();
-
-    let blockID = agent.inspect(AgentInspection.Block, DOWN);
-    let blockENUM: number;     
-
-    for (let i = 1; i < 16; i++) {
-        blockENUM = 65536 * i + blockID;
-
-        if (blocks.testForBlock(blockENUM, positions.add(agent.getPosition(), pos(0, -1, 0)))) {
-            print(`Block ENUM = ${blockENUM}`);
-            return blockENUM;
+    /**
+     * 
+     * @param radius The sphere's radius
+     * @param part The part of the sphere to make (F, T, B, E, W, TN, TS, BN, BS, TNW, TNE, TSW, TSE, BNW, BNE, BSW, BSE)
+     */
+     export function build(sParams: string[]) {
+        let startTimer = gameplay.timeQuery(GAME_TIME);
+    
+        if (init(sParams)) {
+            if(Data.Sphere.nWidth > 0) {
+                let amountOfBlocks = sphere(Data.Sphere.pCenter, Data.nBuildBlock, Data.Sphere.nWidth, Data.Sphere.nHeight, Data.Sphere.nLength, Data.Sphere.bFilled, Data.Sphere.sPart);
+                let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
+        
+                console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
+                reset();
+            }
+            else {
+                console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+            }
         }
     }
-    print(`BlockID = ${blockID}`);
-    return blockID;
-}
 
-function initSphere(sParams: string[]): boolean {
-    let n: number = 0;
+
+
     
-    if (sParams.length == 0) {
-        if (Data.aMarks.length < 2) {
-            print (`No marks to use.`);
+    /**
+     * 
+     * @param sParams 
+     * @returns true on success and false on failure.
+     */
+    function init(sParams: string[]): boolean {
+        let n: number = 0;
+        
+        if (sParams.length == 0) {
+            if (Data.aMarks.length < 2) {
+                console.print (`No marks to use.`);
+                return false;
+            }
+            sParams = Data.aMarks;
+            console.print (`Using marks to define the shape.`);
             return false;
         }
-        sParams = Data.aMarks;
-        print (`Using marks to define the shape.`);
-        return false;
-    }
-    
-    for (let i = 0; i < sParams.length; i++) {
-        if (isNaN(parseInt(sParams[i]))) {
-            // arg is not a number.
-            setPart(sParams[i]);
-        }
-        else {
-            // arg is a number.
-            switch(n) {
-                case 0:
-                    setWidth(parseInt(sParams[i]));
-                    n++;
-                    break;
-                
-                case 1:
-                    setHeight(parseInt(sParams[i]));
-                    n++;
-                    break;
-                
-                case 2:
-                    setLength(parseInt(sParams[i]));
-                    n++
-                    break;
+        
+        for (let i = 0; i < sParams.length; i++) {
+            if (isNaN(parseInt(sParams[i]))) {
+                // arg is not a number.
+                setPart(sParams[i]);
+            }
+            else {
+                // arg is a number.
+                switch(n) {
+                    case 0:
+                        setWidth(parseInt(sParams[i]));
+                        n++;
+                        break;
+                    
+                    case 1:
+                        setHeight(parseInt(sParams[i]));
+                        n++;
+                        break;
+                    
+                    case 2:
+                        setLength(parseInt(sParams[i]));
+                        n++
+                        break;
+                }
             }
         }
-    }
-
-    if (Data.Sphere.nLength == -1) {
-        setLength(Data.Sphere.nWidth);
-    }
-
-    if (Data.Sphere.nHeight == -1) {
-        setHeight(Data.Sphere.nWidth);
-    }
-
-    if (Data.aMarks.length == 1 ) {
-        setCenter(str2pos(Data.aMarks[0]));
-    }
-    else {
-        setCenter(player.position());
-    }
-
-    return true;
-}
-
-/**
- * 
- * @param radius The sphere's radius
- * @param part The part of the sphere to make (F, T, B, E, W, TN, TS, BN, BS, TNW, TNE, TSW, TSE, BNW, BNE, BSW, BSE)
- */
-function sphereCommand(sParams: string[]) {
-    let startTimer = gameplay.timeQuery(GAME_TIME);
-
-    if (initSphere(sParams)) {
-        if(Data.Sphere.nWidth > 0) {
-            let amountOfBlocks = makeSphere(Data.Sphere.pCenter, Data.nBuildBlock, Data.Sphere.nWidth, Data.Sphere.nHeight, Data.Sphere.nLength, Data.Sphere.bFilled, Data.Sphere.sPart);
-            let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
     
-            print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
-            resetSphere();
+        if (Data.Sphere.nLength == -1) {
+            setLength(Data.Sphere.nWidth);
+        }
+    
+        if (Data.Sphere.nHeight == -1) {
+            setHeight(Data.Sphere.nWidth);
+        }
+    
+        if (Data.aMarks.length == 1 ) {
+            setCenter(marks.str2pos(Data.aMarks[0]));
         }
         else {
-            error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+            setCenter(player.position());
         }
+    
+        return true;
     }
-}
+    
+    
 
-/**
- * Resets the sphere values to default
- */
-function resetSphere() {
-        Data.Sphere.pCenter = pos(0,0,0);
-        Data.Sphere.nWidth = -1;
-        Data.Sphere.nHeight = -1;
-        Data.Sphere.nLength = -1; 
-        Data.Sphere.sPart = "F";
-        Data.Sphere.bFilled = false;
-}
 
-/**
- * 
- * @param pCenter 
- * @param block 
- * @param radiusX 
- * @param radiusY 
- * @param radiusZ 
- * @param filled 
- * @param part 
- * @returns 
- */
-function makeSphere(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
-    let affected: number = 0;
+    /**
+     * Resets the sphere values to default
+     */
+    function reset() {
+            Data.Sphere.pCenter = pos(0,0,0);
+            Data.Sphere.nWidth = -1;
+            Data.Sphere.nHeight = -1;
+            Data.Sphere.nLength = -1; 
+            Data.Sphere.sPart = "F";
+            Data.Sphere.bFilled = false;
+    }
+    
 
-    pCenter = pCenter.toWorld();
 
-    radiusX += 0.5;
-    radiusY += 0.5;
-    radiusZ += 0.5;
-
-    const invRadiusX = 1 / radiusX;
-    const invRadiusY = 1 / radiusY;
-    const invRadiusZ = 1 / radiusZ;
-
-    const ceilRadiusX = Math.ceil(radiusX);
-    const ceilRadiusY = Math.ceil(radiusY);
-    const ceilRadiusZ = Math.ceil(radiusZ);
-
-    let nextXn = 0;
-    forX: for (let x = 0; x <= ceilRadiusX; ++x) {
-        const xn = nextXn;
-        nextXn = (x + 1) * invRadiusX;
-        let nextYn = 0;
-        forY: for (let y = 0; y <= ceilRadiusY; ++y) {
-            const yn = nextYn;
-            nextYn = (y + 1) * invRadiusY;
-            let nextZn = 0;
-            forZ: for (let z = 0; z <= ceilRadiusZ; ++z) {
-                const zn = nextZn;
-                nextZn = (z + 1) * invRadiusZ;
-
-                let distanceSq = lengthSq(xn, yn, zn);
-                if (distanceSq > 1) {
-                    if (z == 0) {
-                        if (y == 0) {
-                            break forX;
+    /**
+     * Function to create the actual sphere in the world.
+     * @param pCenter the position which is the center of the sphere
+     * @param block the blockID to use
+     * @param radiusX 
+     * @param radiusY 
+     * @param radiusZ 
+     * @param filled Filled if true, hollow by default.
+     * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
+     * @returns 
+     */
+    function sphere(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
+        let affected: number = 0;
+    
+        pCenter = pCenter.toWorld();
+    
+        radiusX += 0.5;
+        radiusY += 0.5;
+        radiusZ += 0.5;
+    
+        const invRadiusX = 1 / radiusX;
+        const invRadiusY = 1 / radiusY;
+        const invRadiusZ = 1 / radiusZ;
+    
+        const ceilRadiusX = Math.ceil(radiusX);
+        const ceilRadiusY = Math.ceil(radiusY);
+        const ceilRadiusZ = Math.ceil(radiusZ);
+    
+        let nextXn = 0;
+        forX: for (let x = 0; x <= ceilRadiusX; ++x) {
+            const xn = nextXn;
+            nextXn = (x + 1) * invRadiusX;
+            let nextYn = 0;
+            forY: for (let y = 0; y <= ceilRadiusY; ++y) {
+                const yn = nextYn;
+                nextYn = (y + 1) * invRadiusY;
+                let nextZn = 0;
+                forZ: for (let z = 0; z <= ceilRadiusZ; ++z) {
+                    const zn = nextZn;
+                    nextZn = (z + 1) * invRadiusZ;
+    
+                    let distanceSq = lengthSq(xn, yn, zn);
+                    if (distanceSq > 1) {
+                        if (z == 0) {
+                            if (y == 0) {
+                                break forX;
+                            }
+                            break forY;
                         }
-                        break forY;
+                        break forZ;
                     }
-                    break forZ;
-                }
-
-                if (!filled) {
-                    if (lengthSq(nextXn, yn, zn) <= 1 && lengthSq(xn, nextYn, zn) <= 1 && lengthSq(xn, yn, nextZn) <= 1) {
-                        continue;
+    
+                    if (!filled) {
+                        if (lengthSq(nextXn, yn, zn) <= 1 && lengthSq(xn, nextYn, zn) <= 1 && lengthSq(xn, yn, nextZn) <= 1) {
+                            continue;
+                        }
                     }
-                }
-
-
-                /**
-                 * T = Top     N = North   W = West     F = Full 
-                 * B = Bottom  S = South   E = East
-                 * 
-                 * North (negative Z)   West (negative X)   Down (negative Y)
-                 * South (positive Z)   East (positive X)   Up (positive Y)
-                 */
-                //Top
-                if (part == "TSE" || part == "TS" || part == "E" || part == "T" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                    ++affected;
-                }
-                if (part == "TSW" || part == "TS" || part == "W" || part == "T" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                    ++affected;
-                }
-                if (part == "TNE" || part == "TN" || part == "E" || part == "T" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                    ++affected;
-                }
-                if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                    ++affected;
-                }
-                // Bottom
-                 if (part == "BSE" || part == "BS" || part == "E" || part == "B" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(x, -y, z)));
-                    ++affected;
-                }
-                if (part == "BSE" || part == "BS" || part == "W" || part == "B" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(-x, -y, z)));
-                    ++affected;
-                }
-                if (part == "BNE" || part == "BN" || part == "E" || part == "B" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(x, -y, -z)));
-                    ++affected;
-                }
-                if (part == "BNW" || part == "BN" || part == "W" || part == "B" || part == "F") {
-                    blocks.place(block, positions.add(pCenter, world(-x, -y, -z)));
-                    ++affected;
+    
+    
+                    /**
+                     * T = Top     N = North   W = West     F = Full 
+                     * B = Bottom  S = South   E = East
+                     * 
+                     * North (negative Z)   West (negative X)   Down (negative Y)
+                     * South (positive Z)   East (positive X)   Up (positive Y)
+                     */
+                    //Top
+                    if (part == "TSE" || part == "TS" || part == "E" || part == "T" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, y, z)));
+                        ++affected;
+                    }
+                    if (part == "TSW" || part == "TS" || part == "W" || part == "T" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, y, z)));
+                        ++affected;
+                    }
+                    if (part == "TNE" || part == "TN" || part == "E" || part == "T" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, y, -z)));
+                        ++affected;
+                    }
+                    if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
+                        ++affected;
+                    }
+                    // Bottom
+                     if (part == "BSE" || part == "BS" || part == "E" || part == "B" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, -y, z)));
+                        ++affected;
+                    }
+                    if (part == "BSE" || part == "BS" || part == "W" || part == "B" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, -y, z)));
+                        ++affected;
+                    }
+                    if (part == "BNE" || part == "BN" || part == "E" || part == "B" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, -y, -z)));
+                        ++affected;
+                    }
+                    if (part == "BNW" || part == "BN" || part == "W" || part == "B" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, -y, -z)));
+                        ++affected;
+                    }
                 }
             }
         }
+        return affected;
     }
-    return affected;
+    
+    /**
+     * 
+     * @param x 
+     * @param y 
+     * @param z 
+     * @returns 
+     */
+    function lengthSq(x: number, y: number, z: number) {
+        return (x * x) + (y * y) + (z * z)
+    }
 }
 
-/**
- * 
- * @param x 
- * @param y 
- * @param z 
- * @returns 
- */
-function lengthSq(x: number, y: number, z: number) {
-    return (x * x) + (y * y) + (z * z)
-}
