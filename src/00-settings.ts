@@ -93,5 +93,26 @@ function setBlock(block?:number) {
     else {
         Data.nBuildBlock = getBlock();
     }
-    
+}
+
+/**
+ * Gets the ENUMval of the type of block player is standing on.
+ * @returns number
+ */
+ function getBlock(): number {
+    agent.teleportToPlayer();
+
+    let blockID = agent.inspect(AgentInspection.Block, DOWN);
+    let blockENUM: number;     
+
+    for (let i = 1; i < 16; i++) {
+        blockENUM = 65536 * i + blockID;
+
+        if (blocks.testForBlock(blockENUM, positions.add(agent.getPosition(), pos(0, -1, 0)))) {
+            console.print(`Block ENUM = ${blockENUM}`);
+            return blockENUM;
+        }
+    }
+    console.print(`BlockID = ${blockID}`);
+    return blockID;
 }
