@@ -108,12 +108,43 @@ player.onChatCommandCore("set", function(){
 
 
 /**
+ * Set marks while using the Wooden Axe. 
+ */
+ player.onItemInteracted(WOODEN_AXE, function () {
+    console.print(marks.place());
+})
+
+
+
+
+
+/**
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
     console.print(marks.place());   
       
 })
+
+
+
+
+/**
+ * Removes the mark from Data.aMarks when a player
+ * stands on top of it and breaks it.
+ * @param Data.nMarkBlock the ID for the mark block.
+ */
+ blocks.onBlockBroken(Data.nMarkBlock, () => {
+    if (Data.aMarks.length !== 0) {
+       if (marks.check(player.position()) === -1) {
+            marks.print(true);
+            console.error (`You need to stand on the mark in order to remove it.`);
+        }
+        else {
+            marks.remove(player.position());
+        } 
+    }
+});
 
 
 
