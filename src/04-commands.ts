@@ -1,6 +1,6 @@
 /******************************************************************************
  * 
- *  File: src/04-chatcommands.ts
+ *  File: src/04-commands.ts
  *  Description: lists all the chatcommands that you can use in worldBuilder.
  * 
  ******************************************************************************/
