@@ -17,8 +17,8 @@ namespace sphere {
         let startTimer = gameplay.timeQuery(GAME_TIME);
     
         if (init(sParams)) {
-            if(Data.Sphere.nWidth > 0) {
-                let amountOfBlocks = sphere(Data.Sphere.pCenter, Data.nBuildBlock, Data.Sphere.nWidth, Data.Sphere.nHeight, Data.Sphere.nLength, Data.Sphere.bFilled, Data.Sphere.sPart);
+            if(Data.oShape.nWidth > 0) {
+                let amountOfBlocks = sphere(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nWidth, Data.oShape.nHeight, Data.oShape.nLength, Data.oShape.bFilled, Data.oShape.sPart);
                 let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
         
                 console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
@@ -77,12 +77,12 @@ namespace sphere {
             }
         }
     
-        if (Data.Sphere.nLength == -1) {
-            setLength(Data.Sphere.nWidth);
+        if (Data.oShape.nLength == -1) {
+            setLength(Data.oShape.nWidth);
         }
     
-        if (Data.Sphere.nHeight == -1) {
-            setHeight(Data.Sphere.nWidth);
+        if (Data.oShape.nHeight == -1) {
+            setHeight(Data.oShape.nWidth);
         }
     
         if (Data.aMarks.length == 1 ) {

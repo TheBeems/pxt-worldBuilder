@@ -51,7 +51,7 @@ class Data {
     static aMarks: string[] = [];
     static nMarkBlock: number = MAGENTA_CARPET;
     static nBuildBlock: number = GRASS;
-    static Sphere = {
+    static oShape = {
         pCenter: pos(0,0,0),
         nWidth: -1, 
         nHeight: -1, 
@@ -70,35 +70,35 @@ class Data {
      * Resets the sphere values to default
      */
  function resetShape() {
-    Data.Sphere.pCenter = pos(0,0,0);
-    Data.Sphere.nWidth = -1;
-    Data.Sphere.nHeight = -1;
-    Data.Sphere.nLength = -1; 
-    Data.Sphere.sPart = "F";
-    Data.Sphere.bFilled = false;
+    Data.oShape.pCenter = pos(0,0,0);
+    Data.oShape.nWidth = -1;
+    Data.oShape.nHeight = -1;
+    Data.oShape.nLength = -1; 
+    Data.oShape.sPart = "F";
+    Data.oShape.bFilled = false;
 }
 
 
 
 function setCenter(center: Position) {
-    Data.Sphere.pCenter = center;
-    Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.Sphere.pCenter)})`) : null;
+    Data.oShape.pCenter = center;
+    Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.oShape.pCenter)})`) : null;
 }
 function setWidth(width: number) {
-    Data.Sphere.nWidth = width;
-    Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.Sphere.nWidth)}`) : null;
+    Data.oShape.nWidth = width;
+    Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.oShape.nWidth)}`) : null;
 }
 function setHeight(height: number) {
-    Data.Sphere.nHeight = height;
-    Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.Sphere.nHeight)}`) : null;
+    Data.oShape.nHeight = height;
+    Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.oShape.nHeight)}`) : null;
 }
 function setLength(length: number) {
-    Data.Sphere.nLength = length;
-    Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.Sphere.nLength)}`) : null;
+    Data.oShape.nLength = length;
+    Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.oShape.nLength)}`) : null;
 }
 function setPart(part: string) {
-    Data.Sphere.sPart = part;
-    Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.Sphere.sPart)}`) : null;
+    Data.oShape.sPart = part;
+    Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.oShape.sPart)}`) : null;
 }
 function setBlock(block?:number) {
     if (block) {
