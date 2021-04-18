@@ -16,13 +16,13 @@ namespace sphere {
      export function build(sParams: string[]) {
         let startTimer = gameplay.timeQuery(GAME_TIME);
     
-        if (init(sParams)) {
+        if (shape.init(sParams)) {
             if(Data.oShape.nWidth > 0) {
                 let amountOfBlocks = sphere(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nWidth, Data.oShape.nHeight, Data.oShape.nLength, Data.oShape.bFilled, Data.oShape.sPart);
                 let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
         
                 console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
-                resetShape();
+                shape.reset();
             }
             else {
                 console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
@@ -33,67 +33,7 @@ namespace sphere {
 
 
     
-    /**
-     * 
-     * @param sParams 
-     * @returns true on success and false on failure.
-     */
-    function init(sParams: string[]): boolean {
-        let n: number = 0;
-        
-        if (sParams.length == 0) {
-            if (Data.aMarks.length < 2) {
-                console.print (`No marks to use.`);
-                return false;
-            }
-            sParams = Data.aMarks;
-            console.print (`Using marks to define the shape.`);
-            return false;
-        }
-        
-        for (let i = 0; i < sParams.length; i++) {
-            if (isNaN(parseInt(sParams[i]))) {
-                // arg is not a number.
-                setPart(sParams[i]);
-            }
-            else {
-                // arg is a number.
-                switch(n) {
-                    case 0:
-                        setWidth(parseInt(sParams[i]));
-                        n++;
-                        break;
-                    
-                    case 1:
-                        setHeight(parseInt(sParams[i]));
-                        n++;
-                        break;
-                    
-                    case 2:
-                        setLength(parseInt(sParams[i]));
-                        n++
-                        break;
-                }
-            }
-        }
     
-        if (Data.oShape.nLength == -1) {
-            setLength(Data.oShape.nWidth);
-        }
-    
-        if (Data.oShape.nHeight == -1) {
-            setHeight(Data.oShape.nWidth);
-        }
-    
-        if (Data.aMarks.length == 1 ) {
-            setCenter(marks.str2pos(Data.aMarks[0]));
-        }
-        else {
-            setCenter(player.position());
-        }
-    
-        return true;
-    }
     
     
     
@@ -140,7 +80,7 @@ namespace sphere {
                     const zn = nextZn;
                     nextZn = (z + 1) * invRadiusZ;
     
-                    let distanceSq = lengthSq(xn, yn, zn);
+                    let distanceSq = shape.lengthSq3(xn, yn, zn);
                     if (distanceSq > 1) {
                         if (z == 0) {
                             if (y == 0) {
@@ -152,7 +92,7 @@ namespace sphere {
                     }
     
                     if (!filled) {
-                        if (lengthSq(nextXn, yn, zn) <= 1 && lengthSq(xn, nextYn, zn) <= 1 && lengthSq(xn, yn, nextZn) <= 1) {
+                        if (shape.lengthSq3(nextXn, yn, zn) <= 1 && shape.lengthSq3(xn, nextYn, zn) <= 1 && shape.lengthSq3(xn, yn, nextZn) <= 1) {
                             continue;
                         }
                     }
@@ -203,16 +143,5 @@ namespace sphere {
             }
         }
         return affected;
-    }
-    
-    /**
-     * 
-     * @param x 
-     * @param y 
-     * @param z 
-     * @returns 
-     */
-    function lengthSq(x: number, y: number, z: number) {
-        return (x * x) + (y * y) + (z * z)
     }
 }
