@@ -22,7 +22,7 @@ namespace sphere {
                 let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
         
                 console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
-                reset();
+                resetShape();
             }
             else {
                 console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
@@ -96,19 +96,6 @@ namespace sphere {
     }
     
     
-
-
-    /**
-     * Resets the sphere values to default
-     */
-    function reset() {
-            Data.Sphere.pCenter = pos(0,0,0);
-            Data.Sphere.nWidth = -1;
-            Data.Sphere.nHeight = -1;
-            Data.Sphere.nLength = -1; 
-            Data.Sphere.sPart = "F";
-            Data.Sphere.bFilled = false;
-    }
     
 
 

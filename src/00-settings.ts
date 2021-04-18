@@ -65,6 +65,21 @@ class Data {
 }
 
 
+
+/**
+     * Resets the sphere values to default
+     */
+ function resetShape() {
+    Data.Sphere.pCenter = pos(0,0,0);
+    Data.Sphere.nWidth = -1;
+    Data.Sphere.nHeight = -1;
+    Data.Sphere.nLength = -1; 
+    Data.Sphere.sPart = "F";
+    Data.Sphere.bFilled = false;
+}
+
+
+
 function setCenter(center: Position) {
     Data.Sphere.pCenter = center;
     Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.Sphere.pCenter)})`) : null;
