@@ -267,14 +267,17 @@ namespace shapes {
         if (height == 0) {
             return 0;
         } else if (height < 0) {
+            // if height is negative, then build cylinder downwards from pCenter.
             pCenter = positions.add(pCenter, pos(0, height, 0));
+            height = -height; // make height a positive number.
         }
 
-        /*if (pos.getBlockY() < world.getMinY()) {
-            pos = pos.withY(world.getMinY());
-        } else if (pos.getBlockY() + height - 1 > world.getMaxY()) {
-            height = world.getMaxY() - pos.getBlockY() + 1;
-        }*/
+        // not sure if this is really needed?
+        if (pCenter.getValue(Axis.Y) < getMinY()) {
+            pCenter = world(pCenter.getValue(Axis.X), getMinY(), pCenter.getValue(Axis.Z));
+        } else if (pCenter.getValue(Axis.Y) + height - 1 > getMaxY()) {
+            height = getMaxY() - pCenter.getValue(Axis.Y) + 1;
+        }
 
         const invRadiusX = 1 / radiusX;
         const invRadiusZ = 1 / radiusZ;

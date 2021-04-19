@@ -64,8 +64,6 @@ class Data {
     static sValueColor: string = Text.YELLOW;
 }
 
-
-
 function setCenter(center: Position) {
     Data.oShape.pCenter = center;
     Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.oShape.pCenter)})`) : null;
@@ -96,6 +94,9 @@ function setBlock(block?:number) {
     }
 }
 
+function getMinY(): number { return 0; }
+function getMaxY(): number { return 255; }
+    
 /**
  * Gets the ENUMval of the type of block player is standing on.
  * @returns number
