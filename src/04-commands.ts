@@ -298,7 +298,7 @@ player.onChat("wand", function () {
 
 
 /**
- * Command: \\elip length (N/S), height (U/D), width (E/W)
+ * Command: ellips length (N/S), height (U/D), width (E/W)
  * Order of arguments: X: width (+E/-W), Y: height (+UP/-Down), Z: length (+S/-N), type: <string>
  * Creates a full hollow sphere
  */
@@ -311,7 +311,7 @@ player.onChat("wand", function () {
 
 
 /**
- * Command: \\sphere X
+ * Command: sphere <radius>
  * Creates a full hollow sphere
  */
 player.onChatCommandCore("sphere", function () {
@@ -323,11 +323,21 @@ player.onChatCommandCore("sphere", function () {
 
 
 /**
- * Command: \\cylinder X
+ * Command: cylinder <radius>
  * Creates a hollow cylinder
  */
  player.onChatCommandCore("cylinder", function () {
     let sParams = player.getChatArgs("cylinder") as string[];
 
     shapes.build("cylinder", sParams);
+})
+
+/**
+ * Command: pyramid <height>
+ * Creates a hollow pyramid
+ */
+ player.onChatCommandCore("pyramid", function () {
+    let sParams = player.getChatArgs("pyramid") as string[];
+
+    shapes.build("pyramid", sParams);
 })
