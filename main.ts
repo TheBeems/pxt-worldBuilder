@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-16
+ * Last modified:   2021-04-19
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -45,13 +45,13 @@
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-16";
+    static sVersion: string = "2021-04-19";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
     static nMarkBlock: number = MAGENTA_CARPET;
     static nBuildBlock: number = GRASS;
-    static Sphere = {
+    static oShape = {
         pCenter: pos(0,0,0),
         nWidth: -1, 
         nHeight: -1, 
@@ -64,26 +64,25 @@ class Data {
     static sValueColor: string = Text.YELLOW;
 }
 
-
 function setCenter(center: Position) {
-    Data.Sphere.pCenter = center;
-    Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.Sphere.pCenter)})`) : null;
+    Data.oShape.pCenter = center;
+    Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.oShape.pCenter)})`) : null;
 }
 function setWidth(width: number) {
-    Data.Sphere.nWidth = width;
-    Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.Sphere.nWidth)}`) : null;
+    Data.oShape.nWidth = width;
+    Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.oShape.nWidth)}`) : null;
 }
 function setHeight(height: number) {
-    Data.Sphere.nHeight = height;
-    Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.Sphere.nHeight)}`) : null;
+    Data.oShape.nHeight = height;
+    Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.oShape.nHeight)}`) : null;
 }
 function setLength(length: number) {
-    Data.Sphere.nLength = length;
-    Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.Sphere.nLength)}`) : null;
+    Data.oShape.nLength = length;
+    Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.oShape.nLength)}`) : null;
 }
 function setPart(part: string) {
-    Data.Sphere.sPart = part;
-    Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.Sphere.sPart)}`) : null;
+    Data.oShape.sPart = part;
+    Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.oShape.sPart)}`) : null;
 }
 function setBlock(block?:number) {
     if (block) {
@@ -95,6 +94,9 @@ function setBlock(block?:number) {
     }
 }
 
+function getMinY(): number { return 0; }
+function getMaxY(): number { return 255; }
+    
 /**
  * Gets the ENUMval of the type of block player is standing on.
  * @returns number
@@ -158,38 +160,6 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
 
     return (gameplay.timeQuery(GAME_TIME)-startTimer)/20;
 }
-
-
-
-
-
-
-
-/**
- * Set marks while using the Wooden Axe. 
- */
-player.onItemInteracted(WOODEN_AXE, function () {
-    console.print(marks.place());
-})
-
-
-
-/**
- * Removes the mark from Data.aMarks when a player
- * stands on top of it and breaks it.
- * @param Data.nMarkBlock the ID for the mark block.
- */
- blocks.onBlockBroken(Data.nMarkBlock, () => {
-    if (Data.aMarks.length !== 0) {
-       if (marks.check(player.position()) === -1) {
-            marks.print(true);
-            console.error (`You need to stand on the mark in order to remove it.`);
-        }
-        else {
-            marks.remove(player.position());
-        } 
-    }
-});
 
 /******************************************************************************
  * 
@@ -447,7 +417,7 @@ namespace marks {
 
 /******************************************************************************
  * 
- *  File: src/04-chatcommands.ts
+ *  File: src/04-commands.ts
  *  Description: lists all the chatcommands that you can use in worldBuilder.
  * 
  ******************************************************************************/
@@ -555,12 +525,43 @@ player.onChatCommandCore("set", function(){
 
 
 /**
+ * Set marks while using the Wooden Axe. 
+ */
+ player.onItemInteracted(WOODEN_AXE, function () {
+    console.print(marks.place());
+})
+
+
+
+
+
+/**
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
     console.print(marks.place());   
       
 })
+
+
+
+
+/**
+ * Removes the mark from Data.aMarks when a player
+ * stands on top of it and breaks it.
+ * @param Data.nMarkBlock the ID for the mark block.
+ */
+ blocks.onBlockBroken(Data.nMarkBlock, () => {
+    if (Data.aMarks.length !== 0) {
+       if (marks.check(player.position()) === -1) {
+            marks.print(true);
+            console.error (`You need to stand on the mark in order to remove it.`);
+        }
+        else {
+            marks.remove(player.position());
+        } 
+    }
+});
 
 
 
@@ -718,10 +719,10 @@ player.onChat("wand", function () {
  * Order of arguments: X: width (+E/-W), Y: height (+UP/-Down), Z: length (+S/-N), type: <string>
  * Creates a full hollow sphere
  */
- player.onChatCommandCore("elips", function () {
-    let sParams = player.getChatArgs("elips") as string[];
+ player.onChatCommandCore("ellips", function () {
+    let sParams = player.getChatArgs("ellips") as string[];
 
-    sphere.build(sParams);
+    shapes.build("ellips", sParams);
 })
 
 
@@ -733,30 +734,63 @@ player.onChat("wand", function () {
 player.onChatCommandCore("sphere", function () {
     let sParams = player.getChatArgs("sphere") as string[];
 
-    sphere.build(sParams);
+    shapes.build("sphere", sParams);
+})
+
+
+
+/**
+ * Command: \\cylinder X
+ * Creates a hollow cylinder
+ */
+ player.onChatCommandCore("cylinder", function () {
+    let sParams = player.getChatArgs("cylinder") as string[];
+
+    shapes.build("cylinder", sParams);
 })
 
 /******************************************************************************
  * 
- *  File: src/05-shapes.sphere.ts
- *  Description: Functions to initialise and build a sphere or elipsoid.
+ *  File: src/05-shapes.ts
+ *  Description:    Functions to initialise and build different shapes, like
+ *                  sphere, elipsoids, pyramids, cylinders, etc.
  * 
  ******************************************************************************/
 
-namespace sphere {
+/**
+ * Commands to builds shapes like sphere, ellipsoids, cylinders, pyramids 
+ */
+namespace shapes {
     
 
     /**
-     * 
-     * @param radius The sphere's radius
-     * @param part The part of the sphere to make (F, T, B, E, W, TN, TS, BN, BS, TNW, TNE, TSW, TSE, BNW, BNE, BSW, BSE)
+     * Build function to initialize the shape to be build and deciding which 
+     * function to use to build it.
+     * @param sType The type of shape to build.
+     * @param sParams The parameters to use for building.
      */
-     export function build(sParams: string[]) {
+     export function build(sType: string, sParams: string[]) {
         let startTimer = gameplay.timeQuery(GAME_TIME);
+        let amountOfBlocks: number;
     
         if (init(sParams)) {
-            if(Data.Sphere.nWidth > 0) {
-                let amountOfBlocks = sphere(Data.Sphere.pCenter, Data.nBuildBlock, Data.Sphere.nWidth, Data.Sphere.nHeight, Data.Sphere.nLength, Data.Sphere.bFilled, Data.Sphere.sPart);
+            if(Data.oShape.nWidth > 0) {
+                switch (sType) {
+                    case "sphere":
+                    case "ellips":
+                        amountOfBlocks = ellipsoid(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nWidth, Data.oShape.nHeight, Data.oShape.nLength, Data.oShape.bFilled, Data.oShape.sPart);
+                        break;
+                    
+                    case "cylinder":
+                    case "cyl":
+                        amountOfBlocks = cylinder(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nWidth, Data.oShape.nHeight, Data.oShape.nLength, Data.oShape.bFilled, Data.oShape.sPart);
+                        break;
+                    
+                    default:
+                        break;
+                        
+                }
+                
                 let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
         
                 console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
@@ -770,9 +804,20 @@ namespace sphere {
 
 
 
-    
     /**
-     * 
+     * Resets the sphere values to default
+     */
+    function reset() {
+        Data.oShape.pCenter = pos(0,0,0);
+        Data.oShape.nWidth = -1;
+        Data.oShape.nHeight = -1;
+        Data.oShape.nLength = -1; 
+        Data.oShape.sPart = "F";
+        Data.oShape.bFilled = false;
+    }
+
+    /**
+     * Initializing the shape to build.
      * @param sParams 
      * @returns true on success and false on failure.
      */
@@ -815,12 +860,12 @@ namespace sphere {
             }
         }
     
-        if (Data.Sphere.nLength == -1) {
-            setLength(Data.Sphere.nWidth);
+        if (Data.oShape.nLength == -1) {
+            setLength(Data.oShape.nWidth);
         }
     
-        if (Data.Sphere.nHeight == -1) {
-            setHeight(Data.Sphere.nWidth);
+        if (Data.oShape.nHeight == -1) {
+            setHeight(Data.oShape.nWidth);
         }
     
         if (Data.aMarks.length == 1 ) {
@@ -832,22 +877,15 @@ namespace sphere {
     
         return true;
     }
-    
-    
 
 
-    /**
-     * Resets the sphere values to default
-     */
-    function reset() {
-            Data.Sphere.pCenter = pos(0,0,0);
-            Data.Sphere.nWidth = -1;
-            Data.Sphere.nHeight = -1;
-            Data.Sphere.nLength = -1; 
-            Data.Sphere.sPart = "F";
-            Data.Sphere.bFilled = false;
+    function lengthSq2(x: number, z: number) {
+        return (x * x) + (z * z)
     }
-    
+    function lengthSq3(x: number, y: number, z: number) {
+        return (x * x) + (y * y) + (z * z)
+    }
+
 
 
     /**
@@ -861,7 +899,7 @@ namespace sphere {
      * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
-    function sphere(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
+    function ellipsoid(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
         let affected: number = 0;
     
         pCenter = pCenter.toWorld();
@@ -891,7 +929,7 @@ namespace sphere {
                     const zn = nextZn;
                     nextZn = (z + 1) * invRadiusZ;
     
-                    let distanceSq = lengthSq(xn, yn, zn);
+                    let distanceSq = lengthSq3(xn, yn, zn);
                     if (distanceSq > 1) {
                         if (z == 0) {
                             if (y == 0) {
@@ -903,7 +941,7 @@ namespace sphere {
                     }
     
                     if (!filled) {
-                        if (lengthSq(nextXn, yn, zn) <= 1 && lengthSq(xn, nextYn, zn) <= 1 && lengthSq(xn, yn, nextZn) <= 1) {
+                        if (lengthSq3(nextXn, yn, zn) <= 1 && lengthSq3(xn, nextYn, zn) <= 1 && lengthSq3(xn, yn, nextZn) <= 1) {
                             continue;
                         }
                     }
@@ -955,16 +993,93 @@ namespace sphere {
         }
         return affected;
     }
-    
+
+
+
     /**
-     * 
-     * @param x 
-     * @param y 
-     * @param z 
+     * Function to create the actual sphere in the world.
+     * @param pCenter the position which is the center of the sphere
+     * @param block the blockID to use
+     * @param radiusX 
+     * @param radiusY 
+     * @param radiusZ 
+     * @param filled Filled if true, hollow by default.
+     * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
-    function lengthSq(x: number, y: number, z: number) {
-        return (x * x) + (y * y) + (z * z)
+     function cylinder(pCenter: Position, block: number, radiusX: number, height: number, radiusZ: number, filled: boolean, part: string): number {
+        let affected: number = 0;
+    
+        pCenter = pCenter.toWorld();
+
+        radiusX += 0.5;
+        radiusZ += 0.5;
+
+        if (height == 0) {
+            return 0;
+        } else if (height < 0) {
+            // if height is negative, then build cylinder downwards from pCenter.
+            pCenter = positions.add(pCenter, pos(0, height, 0));
+            height = -height; // make height a positive number.
+        }
+
+        // not sure if this is really needed?
+        if (pCenter.getValue(Axis.Y) < getMinY()) {
+            pCenter = world(pCenter.getValue(Axis.X), getMinY(), pCenter.getValue(Axis.Z));
+        } else if (pCenter.getValue(Axis.Y) + height - 1 > getMaxY()) {
+            height = getMaxY() - pCenter.getValue(Axis.Y) + 1;
+        }
+
+        const invRadiusX = 1 / radiusX;
+        const invRadiusZ = 1 / radiusZ;
+
+        const ceilRadiusX = Math.ceil(radiusX);
+        const ceilRadiusZ = Math.ceil(radiusZ);
+
+        let nextXn = 0;
+        forX: for (let x = 0; x <= ceilRadiusX; ++x) {
+            const xn = nextXn;
+            nextXn = (x + 1) * invRadiusX;
+            let nextZn = 0;
+            forZ: for (let z = 0; z <= ceilRadiusZ; ++z) {
+                const zn = nextZn;
+                nextZn = (z + 1) * invRadiusZ;
+
+                let distanceSq = lengthSq2(xn, zn);
+                if (distanceSq > 1) {
+                    if (z == 0) {
+                        break forX;
+                    }
+                    break forZ;
+                }
+
+                if (!filled) {
+                    if (lengthSq2(nextXn, zn) <= 1 && lengthSq2(xn, nextZn) <= 1) {
+                        continue;
+                    }
+                }
+
+                for (let y = 0; y < height; ++y) {
+                    if (part == "SE" || part == "S" || part == "E" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, y, z)));
+                        ++affected;
+                    }
+                    if (part == "SW" || part == "S" || part == "W" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, y, z)));
+                        ++affected;
+                    }
+                    if (part == "NE" || part == "N" || part == "E" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(x, y, -z)));
+                        ++affected;
+                    }
+                    if (part == "NW" || part == "N" || part == "W" || part == "F") {
+                        blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
+                        ++affected;
+                    }
+                }
+            }
+        }
+        return affected;
     }
 }
 
