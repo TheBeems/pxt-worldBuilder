@@ -22,8 +22,8 @@ namespace shapes {
         let startTimer = gameplay.timeQuery(GAME_TIME);
         let amountOfBlocks: number;
     
-        if (init(sParams)) {
-            if(Data.oShape.nWidth > 0) {
+        if (init(sType, sParams)) {
+            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0) {
                 switch (sType) {
                     case "sphere":
                     case "ellips":
@@ -33,6 +33,10 @@ namespace shapes {
                     case "cylinder":
                     case "cyl":
                         amountOfBlocks = cylinder(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nWidth, Data.oShape.nHeight, Data.oShape.nLength, Data.oShape.bFilled, Data.oShape.sPart);
+                        break;
+                    
+                    case "pyramid":
+                        amountOfBlocks = pyramid(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nHeight, Data.oShape.bFilled, Data.oShape.sPart);
                         break;
                     
                     default:
@@ -58,9 +62,9 @@ namespace shapes {
      */
     function reset() {
         Data.oShape.pCenter = pos(0,0,0);
-        Data.oShape.nWidth = -1;
-        Data.oShape.nHeight = -1;
-        Data.oShape.nLength = -1; 
+        Data.oShape.nWidth = null;
+        Data.oShape.nHeight = null;
+        Data.oShape.nLength = null; 
         Data.oShape.sPart = "F";
         Data.oShape.bFilled = false;
     }
@@ -70,7 +74,7 @@ namespace shapes {
      * @param sParams 
      * @returns true on success and false on failure.
      */
-    function init(sParams: string[]): boolean {
+    function init(sType: string, sParams: string[]): boolean {
         let n: number = 0;
         
         if (sParams.length == 0) {
@@ -92,7 +96,10 @@ namespace shapes {
                 // arg is a number.
                 switch(n) {
                     case 0:
-                        setWidth(parseInt(sParams[i]));
+                        if (sType == "pyramid") {
+                            setHeight(parseInt(sParams[i]));
+                        } else { 
+                            setWidth(parseInt(sParams[i]))} 
                         n++;
                         break;
                     
@@ -330,4 +337,53 @@ namespace shapes {
         }
         return affected;
     }
+
+
+
+    /**
+     * Makes a pyramid.
+     *
+     * @param position a position
+     * @param block a block
+     * @param size size of pyramid
+     * @param filled true if filled
+     * @return number of blocks changed
+     * @throws MaxChangedBlocksException thrown if too many blocks are changed
+     */
+     function pyramid(pCenter: Position, block: number, size: number, filled: boolean, part: string): number {
+        let affected = 0;
+
+        let height = size;
+
+        for (let y = 0; y <= height; ++y) {
+            size--;
+            for (let x = 0; x <= size; ++x) {
+                for (let z = 0; z <= size; ++z) {
+
+                    if ((filled && z <= size && x <= size) || z == size || x == size) {
+
+                        if (part == "SE" || part == "S" || part == "E" || part == "F") {
+                            blocks.place(block, positions.add(pCenter, world(x, y, z)));
+                            ++affected;
+                        }
+                        if (part == "SW" || part == "S" || part == "W" || part == "F") {
+                            blocks.place(block, positions.add(pCenter, world(-x, y, z)));
+                            ++affected;
+                        }
+                        if (part == "NE" || part == "N" || part == "E" || part == "F") {
+                            blocks.place(block, positions.add(pCenter, world(x, y, -z)));
+                            ++affected;
+                        }
+                        if (part == "NW" || part == "N" || part == "W" || part == "F") {
+                            blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
+                            ++affected;
+                        }
+                    }
+                }
+            }
+        }
+
+        return affected;
+    }
+
 }
