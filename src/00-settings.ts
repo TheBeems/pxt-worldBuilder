@@ -53,9 +53,9 @@ class Data {
     static nBuildBlock: number = GRASS;
     static oShape = {
         pCenter: pos(0,0,0),
-        nWidth: -1, 
-        nHeight: -1, 
-        nLength: -1, 
+        nWidth: 0, 
+        nHeight: 0, 
+        nLength: 0, 
         sPart: "F",
         bFilled: false
     }  
