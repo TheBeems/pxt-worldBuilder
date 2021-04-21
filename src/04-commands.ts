@@ -341,3 +341,14 @@ player.onChatCommandCore("sphere", function () {
 
     shapes.build("pyramid", sParams);
 })
+
+/**
+* Command: wall <height>
+* Creates a wall between two or more marks
+*/
+player.onChatCommandCore("wall", function () {
+   let sParams = player.getChatArgs("wall") as string[];
+
+   shapes.build("wall", sParams);
+})
+
