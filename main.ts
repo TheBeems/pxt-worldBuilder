@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-19
+ * Last modified:   2021-04-21
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -45,7 +45,7 @@
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-19";
+    static sVersion: string = "2021-04-21";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
@@ -759,11 +759,22 @@ player.onChatCommandCore("sphere", function () {
     shapes.build("pyramid", sParams);
 })
 
+/**
+* Command: wall <height>
+* Creates a wall between two or more marks
+*/
+player.onChatCommandCore("wall", function () {
+   let sParams = player.getChatArgs("wall") as string[];
+
+   shapes.build("wall", sParams);
+})
+
+
 /******************************************************************************
  * 
  *  File: src/05-shapes.ts
  *  Description:    Functions to initialise and build different shapes, like
- *                  sphere, elipsoids, pyramids, cylinders, etc.
+ *                  sphere, ellipsoids, pyramids, cylinders, etc.
  * 
  ******************************************************************************/
 
@@ -784,7 +795,7 @@ namespace shapes {
         let amountOfBlocks: number;
     
         if (init(sType, sParams)) {
-            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0) {
+            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0) {
                 switch (sType) {
                     case "sphere":
                     case "ellips":
@@ -800,6 +811,10 @@ namespace shapes {
                         amountOfBlocks = pyramid(Data.oShape.pCenter, Data.nBuildBlock, Data.oShape.nHeight, Data.oShape.bFilled, Data.oShape.sPart);
                         break;
                     
+                    case "wall":
+                        amountOfBlocks = wall(Data.nBuildBlock, Data.oShape.nHeight);
+                        break;
+                    
                     default:
                         break;
                         
@@ -811,7 +826,18 @@ namespace shapes {
                 reset();
             }
             else {
-                console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+                switch(sType) {
+                    case "sphere":
+                        console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+                        break;
+
+                    case "ellips":
+                        break;
+                    
+                    default:
+                        console.error(`Something went wrong.`);
+                        break;
+                }
             }
         }
     }
@@ -830,10 +856,14 @@ namespace shapes {
         Data.oShape.bFilled = false;
     }
 
+
+
+
     /**
-     * Initializing the shape to build.
-     * @param sParams 
-     * @returns true on success and false on failure.
+     * Initializing the parameters of different types of shapes.
+     * @param sType string which represents the type of the shape
+     * @param sParams the paramters as strings in an array
+     * @returns true/false
      */
     function init(sType: string, sParams: string[]): boolean {
         let n: number = 0;
@@ -843,9 +873,14 @@ namespace shapes {
                 console.print (`No marks to use.`);
                 return false;
             }
-            sParams = Data.aMarks;
-            console.print (`Using marks to define the shape.`);
-            return false;
+
+            if (sType == "wall") {
+                setHeight(1);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         
         for (let i = 0; i < sParams.length; i++) {
@@ -857,7 +892,7 @@ namespace shapes {
                 // arg is a number.
                 switch(n) {
                     case 0:
-                        if (sType == "pyramid") {
+                        if (sType == "pyramid" || sType == "wall") {
                             setHeight(parseInt(sParams[i]));
                         } else { 
                             setWidth(parseInt(sParams[i]))} 
@@ -1076,6 +1111,13 @@ namespace shapes {
                     }
                 }
 
+                /**
+                 * N = North   W = West     F = Full 
+                 * S = South   E = East
+                 * 
+                 * North (negative Z)   West (negative X)   Down (negative Y)
+                 * South (positive Z)   East (positive X)   Up (positive Y)
+                 */
                 for (let y = 0; y < height; ++y) {
                     if (part == "SE" || part == "S" || part == "E" || part == "F") {
                         blocks.place(block, positions.add(pCenter, world(x, y, z)));
@@ -1113,39 +1155,144 @@ namespace shapes {
      */
      function pyramid(pCenter: Position, block: number, size: number, filled: boolean, part: string): number {
         let affected = 0;
+        let reverse: boolean = false
+        let height: number;
 
-        let height = size;
+        size > 0 ? height = size : height = -size - 1;
+
+        if (size < 0) {
+            reverse = true
+            size = 0;
+        }
 
         for (let y = 0; y <= height; ++y) {
-            size--;
-            for (let x = 0; x <= size; ++x) {
-                for (let z = 0; z <= size; ++z) {
+            if (!reverse) {
+                size--;
+                for (let x = 0; x <= size; ++x) {
+                    for (let z = 0; z <= size; ++z) {
 
-                    if ((filled && z <= size && x <= size) || z == size || x == size) {
+                        if ((filled && z <= size && x <= size) || z == size || x == size) {
 
-                        if (part == "SE" || part == "S" || part == "E" || part == "F") {
-                            blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                            ++affected;
-                        }
-                        if (part == "SW" || part == "S" || part == "W" || part == "F") {
-                            blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                            ++affected;
-                        }
-                        if (part == "NE" || part == "N" || part == "E" || part == "F") {
-                            blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                            ++affected;
-                        }
-                        if (part == "NW" || part == "N" || part == "W" || part == "F") {
-                            blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                            ++affected;
+                            if (part == "SE" || part == "S" || part == "E" || part == "F") {
+                                blocks.place(block, positions.add(pCenter, world(x, y, z)));
+                                ++affected;
+                            }
+                            if (part == "SW" || part == "S" || part == "W" || part == "F") {
+                                blocks.place(block, positions.add(pCenter, world(-x, y, z)));
+                                ++affected;
+                            }
+                            if (part == "NE" || part == "N" || part == "E" || part == "F") {
+                                blocks.place(block, positions.add(pCenter, world(x, y, -z)));
+                                ++affected;
+                            }
+                            if (part == "NW" || part == "N" || part == "W" || part == "F") {
+                                blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
+                                ++affected;
+                            }
                         }
                     }
                 }
             }
-        }
+            else {
+                if (y == 0) {
+                    blocks.place(block, positions.add(pCenter, world(0, y, 0)));
+                    ++affected;
+                }
+                else {
+                    size++;
+                    for (let x = size; x >= 0; --x) {
+                        for (let z = size; z >= 0; --z) {
+                            
+                            if ((filled && z <= size && x <= size) || z == size || x == size) {
 
+                                if (part == "SE" || part == "S" || part == "E" || part == "F") {
+                                blocks.place(block, positions.add(pCenter, world(x, y, z)));
+                                ++affected;
+                                }
+                                if (part == "SW" || part == "S" || part == "W" || part == "F") {
+                                    blocks.place(block, positions.add(pCenter, world(-x, y, z)));
+                                    ++affected;
+                                }
+                                if (part == "NE" || part == "N" || part == "E" || part == "F") {
+                                    blocks.place(block, positions.add(pCenter, world(x, y, -z)));
+                                    ++affected;
+                                }
+                                if (part == "NW" || part == "N" || part == "W" || part == "F") {
+                                    blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
+                                    ++affected;
+                                }
+                            }
+                        }
+                    }
+                }   
+            }
+        }
         return affected;
     }
 
+
+    /**
+     * Makes a wall with a certain height.
+     * @param block 
+     * @param height 
+     * @returns 
+     */
+     function wall(block: number, height: number): number {
+        let start: Position;
+        let end: Position;
+        let affected: number = 0;
+        let walls: number = Data.aMarks.length;
+        const dh = pos(0, height - 1, 0);
+
+        if (walls < 2) {
+            console.error(`You need atleast two marks to build a wall.`)
+            return 0;
+        }
+
+        start = marks.str2pos(Data.aMarks[0]);
+        for (let i = 1; i < walls; i++) {
+            end = marks.str2pos(Data.aMarks[i]);
+            shapes.line(block, start, end, dh);
+
+            /**
+             * Calculate the amount of blocks affected
+             */
+            let x, z: number;
+
+            let x1 = start.getValue(Axis.X);
+            let z1 = start.getValue(Axis.Z);
+
+            let x2 = end.getValue(Axis.X);
+            let z2 = end.getValue(Axis.Z);
+
+            // making sure x and z are positive numbers
+            x1 > x2 ? x = x1 - x2 : x = x2 - x1;
+            z1 > z2 ? z = z1 - z2 : z = z2 - z1;
+
+            /**
+             * if the wall is not build in x-dir or z-dir, then set those to 1. 
+             * Otherwise add +1 for correct calculation of affected blocks.
+             */ 
+            x == 0 ? x = 1 : x++;
+            z == 0 ? z = 1 : z++;
+            
+            if (x > z) {
+                affected = affected + (x * height);
+            }
+            else {
+                affected = affected + (z * height);
+            }
+            start = marks.str2pos(Data.aMarks[i]);
+        }
+
+        // Change calculation of affected blocks when there are two walls or more.
+        if (walls > 2) {
+            return affected - ((walls - 2) * height);
+        }
+        else {
+            return affected;
+        }
+        
+    }
 }
 
