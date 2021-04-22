@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems
  * Initial release: 2021-04-07
- * Last modified:   2021-04-21
+ * Last modified:   2021-04-22
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -45,7 +45,7 @@
  * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-21";
+    static sVersion: string = "1.1";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: string[] = [];
