@@ -470,7 +470,7 @@ namespace shapes {
         let end: Position;
         let affected: number = 0;
         let walls: number = Data.aMarks.length;
-        const dh = pos(0, height - 1, 0);
+        const ext = pos(0, height - 1, 0);
 
         if (walls < 2) {
             console.error(`You need atleast two marks to build a wall.`)
@@ -478,48 +478,40 @@ namespace shapes {
         }
 
         start = marks.str2pos(Data.aMarks[0]);
-        for (let i = 1; i < walls; i++) {
+        for (let i = 1; i < walls; ++i) {
             end = marks.str2pos(Data.aMarks[i]);
-            shapes.line(block, start, end, dh);
+            shapes.line(block, start, end, ext);
 
-            /**
-             * Calculate the amount of blocks affected
-             */
-            let x, z: number;
+           // Variables needed for calculating the amount of blocks affected
+           let x, z: number;
 
-            let x1 = start.getValue(Axis.X);
-            let z1 = start.getValue(Axis.Z);
+           let x1 = start.getValue(Axis.X);
+           let z1 = start.getValue(Axis.Z);
 
-            let x2 = end.getValue(Axis.X);
-            let z2 = end.getValue(Axis.Z);
+           let x2 = end.getValue(Axis.X);
+           let z2 = end.getValue(Axis.Z);
 
-            // making sure x and z are positive numbers
-            x1 > x2 ? x = x1 - x2 : x = x2 - x1;
-            z1 > z2 ? z = z1 - z2 : z = z2 - z1;
+           // Calculate amount of blocks between two positions.
+           // Add +1 for missing block. E.g. pos(18) - pos(15) = 3, 
+           // but are actually four blocks: 18, 17, 16, 15
+           x = Math.abs(x1 - x2) + 1;
+           z = Math.abs(z1 - z2) + 1;
+           
+           if (x > z) {
+               affected = affected + (x * height);
+           }
+           else {
+               affected = affected + (z * height);
+           }
+           start = marks.str2pos(Data.aMarks[i]);
+       }
 
-            /**
-             * if the wall is not build in x-dir or z-dir, then set those to 1. 
-             * Otherwise add +1 for correct calculation of affected blocks.
-             */ 
-            x == 0 ? x = 1 : x++;
-            z == 0 ? z = 1 : z++;
-            
-            if (x > z) {
-                affected = affected + (x * height);
-            }
-            else {
-                affected = affected + (z * height);
-            }
-            start = marks.str2pos(Data.aMarks[i]);
-        }
-
-        // Change calculation of affected blocks when there are two walls or more.
-        if (walls > 2) {
-            return affected - ((walls - 2) * height);
-        }
-        else {
-            return affected;
-        }
-        
+       // Change calculation of affected blocks when there are two walls or more.
+       if (walls > 2) {
+           return affected - ((walls - 2) * height);
+       }
+       else {
+           return affected;
+       }
     }
 }
