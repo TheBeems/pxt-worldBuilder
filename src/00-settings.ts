@@ -1,6 +1,6 @@
 /**
  * 
- * Author:          TheBeems
+ * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
  * Last modified:   2021-04-22
  * Description:     Making building inside Minecraft:Education Edition a little easier.
