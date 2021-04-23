@@ -3,6 +3,9 @@
         "target": "es5",
         "sourceMap": false,
         "removeComments": true,
-        "noImplicitAny": true
+        "forceConsitentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "strict": true,
+        "noUnusedLocals": true
     }
 }
