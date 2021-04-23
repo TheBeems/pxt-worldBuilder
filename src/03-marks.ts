@@ -60,16 +60,12 @@ namespace marks {
 
     /**
      * Converts a string into a Position.
-     * @param sMark string to convert 
+     * @param sPos string to convert 
      * @returns position X, Y, Z
      */
-    export function str2pos (sMark: string): Position {
-        if (sMark == "") {
-            return undefined;
-        }
-        let args = sMark.split(" ");
-        
-        return world( parseInt(args[0], 10), parseInt(args[1], 10), parseInt(args[2], 10) );
+    export function str2pos (sPos: string): Position {
+        let aPos = sPos.split(" ");
+        return world( +aPos[0], +aPos[1], +aPos[2]);
     }
 
 
