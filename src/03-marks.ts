@@ -113,7 +113,7 @@ namespace marks {
      */
     export function toggle(): boolean {
         if (Data.aMarks.length == 0) {
-            return undefined;
+            return false;
         }
 
         Data.bShowMark = (!Data.bShowMark);
@@ -164,9 +164,6 @@ namespace marks {
      * @returns Position
      */
     export function getLastPos(): Position {
-        if (Data.aMarks.length == 0) {
-            return null;
-        }
         return str2pos(Data.aMarks.get(Data.aMarks.length-1));
     }
 
