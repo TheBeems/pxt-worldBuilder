@@ -99,8 +99,9 @@ function getMaxY(): number { return 255; }
     
 /**
  * Gets the ENUMval of the type of block player is standing on.
- * @returns number
+ * @returns block id/enum
  */
+// Code from: https://educommunity.minecraft.net/hc/en-us/community/posts/360072413711-How-to-get-the-block-id-python-code-
  function getBlock(): number {
     agent.teleportToPlayer();
 

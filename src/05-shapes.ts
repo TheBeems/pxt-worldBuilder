@@ -20,7 +20,7 @@ namespace shapes {
      */
      export function build(sType: string, sParams: string[]) {
         let startTimer = gameplay.timeQuery(GAME_TIME);
-        let amountOfBlocks: number;
+        let amountOfBlocks: number = 0;
     
         if (init(sType, sParams)) {
             if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0) {
@@ -77,9 +77,9 @@ namespace shapes {
      */
     function reset() {
         Data.oShape.pCenter = pos(0,0,0);
-        Data.oShape.nWidth = null;
-        Data.oShape.nHeight = null;
-        Data.oShape.nLength = null; 
+        Data.oShape.nWidth = 0;
+        Data.oShape.nHeight = 0;
+        Data.oShape.nLength = 0; 
         Data.oShape.sPart = "F";
         Data.oShape.bFilled = false;
     }
@@ -179,6 +179,7 @@ namespace shapes {
      * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1762
     function ellipsoid(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
         let affected: number = 0;
     
@@ -287,6 +288,7 @@ namespace shapes {
      * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1668
      function cylinder(pCenter: Position, block: number, radiusX: number, height: number, radiusZ: number, filled: boolean, part: string): number {
         let affected: number = 0;
     
@@ -381,6 +383,7 @@ namespace shapes {
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1848
      function pyramid(pCenter: Position, block: number, size: number, filled: boolean, part: string): number {
         let affected = 0;
         let reverse: boolean = false
