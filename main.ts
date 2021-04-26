@@ -1,8 +1,8 @@
 /**
  * 
- * Author:          TheBeems
+ * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-21
+ * Last modified:   2021-04-22
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -39,16 +39,12 @@
 
 /**
  * Class with the Data and settings.
- * 
- * Note: aMarks stores positions as strings, because it wasn't possible 
- * to search for positions otherwise. So always have to convert results 
- * from aMark with the function str2pos().
  */
 class Data {
-    static sVersion: string = "2021-04-21";
+    static sVersion: string = "1.2";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
-    static aMarks: string[] = [];
+    static aMarks: Position[] = [];
     static nMarkBlock: number = MAGENTA_CARPET;
     static nBuildBlock: number = GRASS;
     static oShape = {
@@ -99,8 +95,9 @@ function getMaxY(): number { return 255; }
     
 /**
  * Gets the ENUMval of the type of block player is standing on.
- * @returns number
+ * @returns block id/enum
  */
+// Code from: https://educommunity.minecraft.net/hc/en-us/community/posts/360072413711-How-to-get-the-block-id-python-code-
  function getBlock(): number {
     agent.teleportToPlayer();
 
@@ -140,8 +137,8 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
     let startTimer = gameplay.timeQuery(GAME_TIME);
 
     if (Data.aMarks.length > 1) {
-        let pFrom = marks.str2pos(Data.aMarks[0]);
-        let pTo = marks.getLastPos();
+        let pFrom = marks.getFirst();
+        let pTo = marks.getLast();
 
         blocks.fill(
             blocks.blockWithData(nBlockID, nBlockData), 
@@ -216,12 +213,14 @@ namespace console {
 
 
 namespace marks {
+
+    //export let Data.aMarks: Position[] = []
     
     /**
      * Shows the mark
      * @param pMark 
      */
-    function show(pMark: Position) {
+    function show(pMark: Position): void {
         blocks.place(Data.nMarkBlock, pMark);
     }
 
@@ -231,7 +230,7 @@ namespace marks {
      * Hides the mark
      * @param pMark 
      */
-    function hide(pMark: Position) {
+    function hide(pMark: Position): void {
         if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
             blocks.place(AIR, pMark);
         }
@@ -240,44 +239,45 @@ namespace marks {
 
 
     /**
-     * Sets the mark in aMarks and 
+     * Sets the mark in Data.aMarks and 
      * shows it in the world.
      * @param pMark 
      */
-    function set(pMark: Position = pos(0,0,0)): Position {
-        Data.aMarks.push(pMark.toString());
+    function set(pMark: Position): void {
+        Data.aMarks.push(pMark);
 
         if (Data.bShowMark) {
             show(pMark);
         }
-        return getLastPos();
     }
 
 
 
     /**
-     * Checks wheter the position is allready been set in aMarks.
+     * Checks wheter the position is allready been set in Data.aMarks.
      * @param pMark position to check
      * @returns -1 if not found, >= 0 if found
      */
-    export function check(pMark: Position = pos(0,0,0)): number {
-        return Data.aMarks.indexOf(pMark.toString());
+    export function check(pMark: Position): number {
+        //return Data.aMarks.indexOf(pMark.toString());
+        for(let i = 0; i < Data.aMarks.length; i++){
+            if (Data.aMarks[i].toString() == pMark.toString()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 
 
     /**
      * Converts a string into a Position.
-     * @param sMark string to convert 
+     * @param sPos string to convert 
      * @returns position X, Y, Z
      */
-    export function str2pos (sMark: string): Position {
-        if (sMark == "") {
-            return undefined;
-        }
-        let args = sMark.split(" ");
-        
-        return world( parseInt(args[0], 10), parseInt(args[1], 10), parseInt(args[2], 10) );
+    export function str2pos (sPos: string): Position {
+        let aPos = sPos.split(" ");
+        return world( +aPos[0], +aPos[1], +aPos[2]);
     }
 
 
@@ -290,26 +290,30 @@ namespace marks {
      * @param nIndex the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
-    export function remove(pMark: Position = pos(0,0,0)): boolean {
+    export function remove(pMark?: Position): boolean {
         if (Data.aMarks.length == 0) {
             return false;
         }
 
         // Delete given position.
-        if (pMark != null) {
-            let i = Data.aMarks.indexOf(pMark.toString());
+        if (pMark != undefined) {
+            let i = check(pMark);
 
-            // remove single element.
-            if (Data.aMarks.removeElement(pMark.toString())) {
-                hide(pMark) // removed the markBlock
-                console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
-                return true;
-            }
+            // When position is not found, return false.
+            if (i == -1) { return false; }
+            
+            // Remove single element.
+            pMark = Data.aMarks.removeAt(i);
+            hide(pMark) // removed the markBlock
+            console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
+
+            return true;
         }
 
+        // When no position was given, delete all marks.
         while (Data.aMarks.length) {
-            let sMark = Data.aMarks.get(Data.aMarks.length-1);
-            hide(str2pos(sMark));
+            let pMark = Data.aMarks.get(Data.aMarks.length-1);
+            hide(pMark);
             Data.aMarks.pop();
         }
         
@@ -325,18 +329,18 @@ namespace marks {
      */
     export function toggle(): boolean {
         if (Data.aMarks.length == 0) {
-            return undefined;
+            return false;
         }
 
         Data.bShowMark = (!Data.bShowMark);
 
         for (let i = 0; i < Data.aMarks.length; i++) {
-            let sMark = Data.aMarks.get(i);
+            let pMark = Data.aMarks.get(i);
             if (Data.bShowMark) {
-                show(str2pos(sMark));
+                show(pMark);
             }
             else {
-                hide(str2pos(sMark));
+                hide(pMark);
             }
         }
         return Data.bShowMark;
@@ -359,9 +363,9 @@ namespace marks {
         }
         else {
             for (let i = 0; i < Data.aMarks.length; i++) {
-                let sMark = Data.aMarks.get(i);
-                bWorld ? show(str2pos(sMark)) : null;
-                sResult += (`Mark[${console.colorize(i)}] has pos(${console.colorize(sMark)})\n`)
+                let pMark = Data.aMarks.get(i);
+                bWorld ? show(pMark) : null;
+                sResult += (`Mark[${console.colorize(i)}] has pos(${console.colorize(pMark)})\n`)
             }
             console.print(sResult);
         }
@@ -371,22 +375,30 @@ namespace marks {
 
 
 
-    /**
-     * Returns the last position in aMarks.
+     /**
+     * Returns the last position in Data.aMarks.
      * @returns Position
      */
-    export function getLastPos(): Position {
-        if (Data.aMarks.length == 0) {
-            return null;
-        }
-        return str2pos(Data.aMarks.get(Data.aMarks.length-1));
+      export function getFirst(): Position {
+        return Data.aMarks.get(0);
+    }
+
+
+
+
+    /**
+     * Returns the last position in Data.aMarks.
+     * @returns Position
+     */
+    export function getLast(): Position {
+        return Data.aMarks.get(Data.aMarks.length-1);
     }
 
 
 
     /**
-     * Returns the last index from aMarks.
-     * @returns index number of aMarks
+     * Returns the last index from Data.aMarks.
+     * @returns index number of Data.aMarks
      */
     export function getLastIndex(): number {
         return Data.aMarks.length-1;
@@ -399,20 +411,17 @@ namespace marks {
      * The command to place a mark on the map.
      * @returns string
      */
-    export function place(): string {
-        let pMark = player.position();
-
-        // Check if position is in aMarks.
+    export function place(pMark: Position): void {
+        // Check if position is in Data.aMarks.
         let i = check(pMark)
         if ( i < 0) {
-            pMark = set(pMark);
-            return (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark.toString())})`); 
+            set(pMark);
+            console.print (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark)})`); 
         }
         else {
-            return (`§cPosition allready marked!`);
+            console.print (`§cPosition allready marked!`);
         }
     }
- 
 }
 
 /******************************************************************************
@@ -440,9 +449,10 @@ namespace marks {
             "There are no details..."],
         ["unmark", 
             "Removes a mark from the players current position.", 
-            "When you try to unmark when there is no mark, it return an console.error. Use 'unmark all' te remove all marks."],
+            "Use 'unmark all' te remove all marks. When you try to unmark when there is no mark, it return an console.error."],
         ["togglemarks", 
-            "Toggles between showing or hiding the marks on the map."],
+            "Toggles between showing or hiding the marks on the map.",
+            "There are no details..."],
         ["showmarks", 
             "Prints the marks in chat.", 
             "Use 'showmarks world' to also show the marks in the world."],
@@ -450,13 +460,23 @@ namespace marks {
             "Fills an area with blocks.",
             "First place two marks on the map, then type 'fill' to fill it with the standard building block. Or use 'fill <blockid> <blockdata>' to specify the block to use."],
         ["sphere", 
-            "Creates a sphere with n radius. Optionally give the part you want to create. Use 'sphere <number> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
+            "Creates a sphere with n radius. Optionally specify the part you want to create. ",
+            "Use 'sphere <radius> <part>'. Example: 'sphere 5 T' to create a sphere with radius 5 and only the top part of the sphere."],
         ["elips", 
-            "Creates an elips with width, height and length. Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 16 7 T'. "],
+            "Creates an elips with width, height and length.",
+            "Use 'elips <width> <height> <length> <part>'. For example: 'elips 9 7 12 T'. "],
+        ["wall",
+            "Creates a wall with a certain height.",
+            "Use 'wall <height>', to create a wall of the given height. Standard height is 1."],
+        ["pyramid",
+            "Creates a pyramid with a given height.",
+            "Use 'pyramid <height>' to build a pyramid. You can specify a <part> if needed. When given a minus height, the pyramid is created upside down."],
         ["set", 
-            "Sets individual settings like width, height, length, block, part and center. Use 'set block <number>' or 'set width <number>'."],
+            "Sets individual settings like width, height, length, block, part and center.",
+            "Use 'set block <number>' or 'set width <number>', et cetera."],
         ["clearmarks", 
-            "Clears all the marks currently saved."],
+            "Clears all the marks currently saved.",
+            "This command is the same as 'unmark all'."],
         ["wand", 
             "Gives a Wooden Axe so you can easily place marks in the world by right clicking with it."]
     ];
@@ -517,7 +537,7 @@ player.onChatCommandCore("set", function(){
     }
     else {
         if (sParams.length == 1 && sParams[0].trim().toLowerCase() == "block") {
-            setBlock(null);
+            setBlock(undefined);
         }
     }
 })
@@ -528,7 +548,7 @@ player.onChatCommandCore("set", function(){
  * Set marks while using the Wooden Axe. 
  */
  player.onItemInteracted(WOODEN_AXE, function () {
-    console.print(marks.place());
+    marks.place(player.position());
 })
 
 
@@ -539,7 +559,7 @@ player.onChatCommandCore("set", function(){
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
-    console.print(marks.place());   
+    marks.place(player.position());   
       
 })
 
@@ -578,7 +598,7 @@ player.onChatCommandCore("unmark", function(){
                 break;
             
             case "all":
-                console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+                console.print (marks.remove() ? "All marks removed." : "There were no marks.");
                 break;
             
             default:
@@ -595,7 +615,7 @@ player.onChatCommandCore("unmark", function(){
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
-    console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+    console.print (marks.remove(undefined) ? "All marks removed." : "There were no marks.");
 })
 
 
@@ -685,9 +705,9 @@ player.onChat("air", function () {
  */
 player.onChat("copy", function () {
     if (Data.aMarks.length == 2) {
-        builder.teleportTo(marks.str2pos(Data.aMarks[0]));
+        builder.teleportTo(marks.getFirst());
         builder.mark();
-        builder.teleportTo(marks.getLastPos());
+        builder.teleportTo(marks.getLast());
         builder.copy();
     }
 })
@@ -792,7 +812,7 @@ namespace shapes {
      */
      export function build(sType: string, sParams: string[]) {
         let startTimer = gameplay.timeQuery(GAME_TIME);
-        let amountOfBlocks: number;
+        let amountOfBlocks: number = 0;
     
         if (init(sType, sParams)) {
             if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0) {
@@ -849,9 +869,9 @@ namespace shapes {
      */
     function reset() {
         Data.oShape.pCenter = pos(0,0,0);
-        Data.oShape.nWidth = null;
-        Data.oShape.nHeight = null;
-        Data.oShape.nLength = null; 
+        Data.oShape.nWidth = 0;
+        Data.oShape.nHeight = 0;
+        Data.oShape.nLength = 0; 
         Data.oShape.sPart = "F";
         Data.oShape.bFilled = false;
     }
@@ -921,7 +941,7 @@ namespace shapes {
         }
     
         if (Data.aMarks.length == 1 ) {
-            setCenter(marks.str2pos(Data.aMarks[0]));
+            setCenter(marks.getFirst());
         }
         else {
             setCenter(player.position());
@@ -951,6 +971,7 @@ namespace shapes {
      * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1762
     function ellipsoid(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
         let affected: number = 0;
     
@@ -1059,6 +1080,7 @@ namespace shapes {
      * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1668
      function cylinder(pCenter: Position, block: number, radiusX: number, height: number, radiusZ: number, filled: boolean, part: string): number {
         let affected: number = 0;
     
@@ -1153,6 +1175,7 @@ namespace shapes {
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
+    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1848
      function pyramid(pCenter: Position, block: number, size: number, filled: boolean, part: string): number {
         let affected = 0;
         let reverse: boolean = false
@@ -1242,57 +1265,49 @@ namespace shapes {
         let end: Position;
         let affected: number = 0;
         let walls: number = Data.aMarks.length;
-        const dh = pos(0, height - 1, 0);
+        const ext = pos(0, height - 1, 0);
 
         if (walls < 2) {
             console.error(`You need atleast two marks to build a wall.`)
             return 0;
         }
 
-        start = marks.str2pos(Data.aMarks[0]);
-        for (let i = 1; i < walls; i++) {
-            end = marks.str2pos(Data.aMarks[i]);
-            shapes.line(block, start, end, dh);
+        start = marks.getFirst();
+        for (let i = 1; i < walls; ++i) {
+            end = Data.aMarks[i];
+            shapes.line(block, start, end, ext);
 
-            /**
-             * Calculate the amount of blocks affected
-             */
-            let x, z: number;
+           // Variables needed for calculating the amount of blocks affected
+           let x, z: number;
 
-            let x1 = start.getValue(Axis.X);
-            let z1 = start.getValue(Axis.Z);
+           let x1 = start.getValue(Axis.X);
+           let z1 = start.getValue(Axis.Z);
 
-            let x2 = end.getValue(Axis.X);
-            let z2 = end.getValue(Axis.Z);
+           let x2 = end.getValue(Axis.X);
+           let z2 = end.getValue(Axis.Z);
 
-            // making sure x and z are positive numbers
-            x1 > x2 ? x = x1 - x2 : x = x2 - x1;
-            z1 > z2 ? z = z1 - z2 : z = z2 - z1;
+           // Calculate amount of blocks between two positions.
+           // Add +1 for missing block. E.g. pos(18) - pos(15) = 3, 
+           // but are actually four blocks: 18, 17, 16, 15
+           x = Math.abs(x1 - x2) + 1;
+           z = Math.abs(z1 - z2) + 1;
+           
+           if (x > z) {
+               affected = affected + (x * height);
+           }
+           else {
+               affected = affected + (z * height);
+           }
+           start = Data.aMarks[i];
+       }
 
-            /**
-             * if the wall is not build in x-dir or z-dir, then set those to 1. 
-             * Otherwise add +1 for correct calculation of affected blocks.
-             */ 
-            x == 0 ? x = 1 : x++;
-            z == 0 ? z = 1 : z++;
-            
-            if (x > z) {
-                affected = affected + (x * height);
-            }
-            else {
-                affected = affected + (z * height);
-            }
-            start = marks.str2pos(Data.aMarks[i]);
-        }
-
-        // Change calculation of affected blocks when there are two walls or more.
-        if (walls > 2) {
-            return affected - ((walls - 2) * height);
-        }
-        else {
-            return affected;
-        }
-        
+       // Change calculation of affected blocks when there are two walls or more.
+       if (walls > 2) {
+           return affected - ((walls - 2) * height);
+       }
+       else {
+           return affected;
+       }
     }
 }
 
