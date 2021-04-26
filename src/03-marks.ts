@@ -85,34 +85,33 @@ namespace marks {
      * @param nIndex the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
-    export function remove(pMark?: Position): boolean {
+    export function remove(pMark?: Position, nIndex?: number): boolean {
         if (Data.aMarks.length == 0) {
             return false;
         }
 
-        // Delete given position.
-        if (pMark != undefined) {
-            let i = check(pMark);
-
-            // When position is not found, return false.
-            if (i == -1) { return false; }
-            
-            // Remove single element.
-            pMark = Data.aMarks.removeAt(i);
-            hide(pMark) // removed the markBlock
-            console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
-
+        if (pMark == undefined && nIndex == undefined) {
+            // When no position was given, loop to delete all marks.
+            while (Data.aMarks.length) {
+                let pMark = marks.getLast();
+                hide(pMark);
+                Data.aMarks.pop();
+            }
             return true;
         }
 
-        // When no position was given, delete all marks.
-        while (Data.aMarks.length) {
-            let pMark = Data.aMarks.get(Data.aMarks.length-1);
-            hide(pMark);
-            Data.aMarks.pop();
-        }
-        
-        return true;
+        let i: number;
+
+        // i = the index to be removed from the array.
+        pMark != undefined ? i = check(pMark) : nIndex != undefined ? i = nIndex : i = -1;
+        if (i == -1) { return false; }
+
+        // Remove the mark at the given index
+        pMark = Data.aMarks.removeAt(i);
+        hide(pMark) // removed the markBlock
+        console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
+
+        return true;  
     }
 
 

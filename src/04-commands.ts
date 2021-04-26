@@ -148,7 +148,7 @@ player.onChatCommandCore("set", function(){
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
        if (marks.check(player.position()) === -1) {
-            marks.print(true);
+            //marks.print(true);
             console.error (`You need to stand on the mark in order to remove it.`);
         }
         else {
@@ -166,11 +166,13 @@ player.onChatCommandCore("unmark", function(){
     let args = player.getChatArgs("unmark") as string[];
 
     for (let arg of args) {
-        switch(arg) {
-            case "this":
-                console.print (marks.remove(player.position()) ? "This mark removed." : "There is no mark.");
-                break;
-            
+        if (!isNaN(parseInt(arg))) {
+            // arg is a number
+            marks.remove(undefined, parseInt(arg));
+            break;
+
+        }
+        switch(arg) {         
             case "all":
                 console.print (marks.remove() ? "All marks removed." : "There were no marks.");
                 break;
@@ -189,7 +191,7 @@ player.onChatCommandCore("unmark", function(){
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
-    console.print (marks.remove(undefined) ? "All marks removed." : "There were no marks.");
+    console.print (marks.remove() ? "All marks removed." : "There were no marks.");
 })
 
 
