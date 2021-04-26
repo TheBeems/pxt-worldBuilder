@@ -239,38 +239,11 @@ player.onChatCommandCore("togglemarks", function(){
  * @param nBlockData further defines the block being placed. Defaults to 0 if ommited
  */
  player.onChatCommandCore("fill", function () { 
-    let sParams = player.getChatArgs("fill") as string[]; 
-    let nBlockID: number;
-    let nBlockData: number;
+    let sParams = player.getChatArgs("fill") as string[];
 
-    switch (sParams.length) {        
-        case 1:
-            nBlockID = parseInt(sParams[0]);
-            nBlockData = 0;
-            break;
-
-        case 2:
-            nBlockID = parseInt(sParams[0]);
-            nBlockData = parseInt(sParams[1]);
-            break;
-
-        default:
-            nBlockID = Data.nBuildBlock;
-            nBlockData = 0;
-            break;
-    }
-    console.print(`Command took ${console.colorize(cmdFill(nBlockID,nBlockData))} seconds.`);
+    shapes.build("fill", sParams);
 })
 
-
-
-/**
- * Command: air
- * Fills the area between Start- and EndPosition with air
- */
-player.onChat("air", function () {
-    console.print(`Command took ${console.colorize(cmdFill(AIR))} seconds.`);
-})
 
 
 

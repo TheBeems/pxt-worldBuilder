@@ -23,7 +23,7 @@ namespace shapes {
         let amountOfBlocks: number = 0;
     
         if (init(sType, sParams)) {
-            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0) {
+            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0 || sType == "fill") {
                 switch (sType) {
                     case "sphere":
                     case "ellips":
@@ -41,6 +41,10 @@ namespace shapes {
                     
                     case "wall":
                         amountOfBlocks = wall(Data.nBuildBlock, Data.oShape.nHeight);
+                        break;
+                    
+                    case "fill":
+                        amountOfBlocks = fill(Data.oShape.nBlockID, Data.oShape.nBlockData);
                         break;
                     
                     default:
@@ -94,7 +98,7 @@ namespace shapes {
      * @returns true/false
      */
     function init(sType: string, sParams: string[]): boolean {
-        let n: number = 0;
+        let n: number = 0; // iterate through the parameters that are numbers.
         
         if (sParams.length == 0) {
             if (Data.aMarks.length < 2) {
@@ -102,12 +106,18 @@ namespace shapes {
                 return false;
             }
 
-            if (sType == "wall") {
-                setHeight(1);
-                return true;
-            }
-            else {
-                return false;
+            switch (sType) {
+                case "wall":
+                    setHeight(1);
+                    return true;
+                
+                case "fill":
+                    Data.oShape.nBlockID = Data.nBuildBlock;
+                    Data.oShape.nBlockData = 0;
+                    return true;
+                
+                default:
+                    return false;
             }
         }
         
@@ -120,15 +130,27 @@ namespace shapes {
                 // arg is a number.
                 switch(n) {
                     case 0:
-                        if (sType == "pyramid" || sType == "wall") {
-                            setHeight(parseInt(sParams[i]));
-                        } else { 
-                            setWidth(parseInt(sParams[i]))} 
+                        if (sType == "fill") {
+                            Data.oShape.nBlockID = parseInt(sParams[i]);
+                        }
+                        else {
+                            if (sType == "pyramid" || sType == "wall") {
+                                setHeight(parseInt(sParams[i]));
+                            } else { 
+                                setWidth(parseInt(sParams[i]));
+                            } 
+                        }
+                        
                         n++;
                         break;
                     
                     case 1:
-                        setHeight(parseInt(sParams[i]));
+                        if (sType == "fill") {
+                            Data.oShape.nBlockData = parseInt(sParams[i]);
+                        }
+                        else {
+                            setHeight(parseInt(sParams[i]));
+                        };
                         n++;
                         break;
                     
@@ -164,6 +186,50 @@ namespace shapes {
     }
     function lengthSq3(x: number, y: number, z: number) {
         return (x * x) + (y * y) + (z * z)
+    }
+
+    function calcVolume(pStart: Position, pEnd: Position, pHeight?: number): number {
+        // Variables needed for calculating the amount of blocks affected
+        let x1 = pStart.getValue(Axis.X);
+        let y1 = pStart.getValue(Axis.Y);
+        let z1 = pStart.getValue(Axis.Z);
+
+        let x2 = pEnd.getValue(Axis.X);
+        let y2 = pEnd.getValue(Axis.Y);
+        let z2 = pEnd.getValue(Axis.Z);
+
+        // Calculate amount of blocks between two positions.
+        // Add +1 for missing block. E.g. pos(18) - pos(15) = 3, 
+        // but are actually four blocks: 18, 17, 16, 15
+        let x = Math.abs(x1 - x2) + 1;
+        let y = Math.abs(y1 - y2) + 1;
+        let z = Math.abs(z1 - z2) + 1;
+        
+        return (pHeight == undefined) ? x * y * z : (x > z) ? x * pHeight : z * pHeight;
+    }
+
+    function fill(nBlockID: number, nBlockData: number): number {
+        if (Data.aMarks.length > 1) {
+            let pFrom = marks.getFirst();
+            let pTo = marks.getLast();
+    
+            blocks.fill(
+                blocks.blockWithData(nBlockID, nBlockData), 
+                pFrom, pTo, 
+                FillOperation.Replace
+            );
+            
+            let msg = `Filled pos(${console.colorize(pFrom)}) to pos(${console.colorize(pTo)}) with blockID: ${console.colorize(nBlockID)}`;
+            if (nBlockID >= 65536) {
+                console.print(msg); 
+            }
+            else {
+                console.print(msg + `and blockData: ${console.colorize(nBlockData)}`)
+            }
+
+            return calcVolume(pFrom, pTo);
+        }
+        return -1;
     }
 
 
@@ -485,27 +551,8 @@ namespace shapes {
             end = Data.aMarks[i];
             shapes.line(block, start, end, ext);
 
-           // Variables needed for calculating the amount of blocks affected
-           let x, z: number;
+           affected += calcVolume(start, end, height);
 
-           let x1 = start.getValue(Axis.X);
-           let z1 = start.getValue(Axis.Z);
-
-           let x2 = end.getValue(Axis.X);
-           let z2 = end.getValue(Axis.Z);
-
-           // Calculate amount of blocks between two positions.
-           // Add +1 for missing block. E.g. pos(18) - pos(15) = 3, 
-           // but are actually four blocks: 18, 17, 16, 15
-           x = Math.abs(x1 - x2) + 1;
-           z = Math.abs(z1 - z2) + 1;
-           
-           if (x > z) {
-               affected = affected + (x * height);
-           }
-           else {
-               affected = affected + (z * height);
-           }
            start = Data.aMarks[i];
        }
 

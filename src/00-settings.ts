@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-22
+ * Last modified:   2021-04-26
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.2";
+    static sVersion: string = "1.3";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -53,12 +53,21 @@ class Data {
         nHeight: 0, 
         nLength: 0, 
         sPart: "F",
-        bFilled: false
+        bFilled: false,
+        nBlockID: 0,
+        nBlockData: 0
     }  
     static sMsgColor: string = Text.DARK_AQUA; 
     static sDbgColor: string = Text.DARK_GRAY;
     static sValueColor: string = Text.YELLOW;
 }
+
+// Initialitation complete.
+console.print(`WorldBuilder version (${console.colorize(Data.sVersion)}) ready! \nType 'help' for commands.`);
+
+
+
+
 
 function setCenter(center: Position) {
     Data.oShape.pCenter = center;
