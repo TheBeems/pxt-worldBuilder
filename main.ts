@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-22
+ * Last modified:   2021-04-26
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.2";
+    static sVersion: string = "1.3";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -257,34 +257,33 @@ namespace marks {
      * @param nIndex the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
-    export function remove(pMark?: Position): boolean {
+    export function remove(pMark?: Position, nIndex?: number): boolean {
         if (Data.aMarks.length == 0) {
             return false;
         }
 
-        // Delete given position.
-        if (pMark != undefined) {
-            let i = check(pMark);
-
-            // When position is not found, return false.
-            if (i == -1) { return false; }
-            
-            // Remove single element.
-            pMark = Data.aMarks.removeAt(i);
-            hide(pMark) // removed the markBlock
-            console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
-
+        if (pMark == undefined && nIndex == undefined) {
+            // When no position was given, loop to delete all marks.
+            while (Data.aMarks.length) {
+                let pMark = marks.getLast();
+                hide(pMark);
+                Data.aMarks.pop();
+            }
             return true;
         }
 
-        // When no position was given, delete all marks.
-        while (Data.aMarks.length) {
-            let pMark = Data.aMarks.get(Data.aMarks.length-1);
-            hide(pMark);
-            Data.aMarks.pop();
-        }
-        
-        return true;
+        let i: number;
+
+        // i = the index to be removed from the array.
+        pMark != undefined ? i = check(pMark) : nIndex != undefined ? i = nIndex : i = -1;
+        if (i == -1) { return false; }
+
+        // Remove the mark at the given index
+        pMark = Data.aMarks.removeAt(i);
+        hide(pMark) // removed the markBlock
+        console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
+
+        return true;  
     }
 
 
@@ -541,7 +540,7 @@ player.onChatCommandCore("set", function(){
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
        if (marks.check(player.position()) === -1) {
-            marks.print(true);
+            //marks.print(true);
             console.error (`You need to stand on the mark in order to remove it.`);
         }
         else {
@@ -559,11 +558,13 @@ player.onChatCommandCore("unmark", function(){
     let args = player.getChatArgs("unmark") as string[];
 
     for (let arg of args) {
-        switch(arg) {
-            case "this":
-                console.print (marks.remove(player.position()) ? "This mark removed." : "There is no mark.");
-                break;
-            
+        if (!isNaN(parseInt(arg))) {
+            // arg is a number
+            marks.remove(undefined, parseInt(arg));
+            break;
+
+        }
+        switch(arg) {         
             case "all":
                 console.print (marks.remove() ? "All marks removed." : "There were no marks.");
                 break;
@@ -582,7 +583,7 @@ player.onChatCommandCore("unmark", function(){
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
-    console.print (marks.remove(undefined) ? "All marks removed." : "There were no marks.");
+    console.print (marks.remove() ? "All marks removed." : "There were no marks.");
 })
 
 
