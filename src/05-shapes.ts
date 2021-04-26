@@ -149,7 +149,7 @@ namespace shapes {
         }
     
         if (Data.aMarks.length == 1 ) {
-            setCenter(marks.str2pos(Data.aMarks[0]));
+            setCenter(marks.getFirst());
         }
         else {
             setCenter(player.position());
@@ -480,9 +480,9 @@ namespace shapes {
             return 0;
         }
 
-        start = marks.str2pos(Data.aMarks[0]);
+        start = marks.getFirst();
         for (let i = 1; i < walls; ++i) {
-            end = marks.str2pos(Data.aMarks[i]);
+            end = Data.aMarks[i];
             shapes.line(block, start, end, ext);
 
            // Variables needed for calculating the amount of blocks affected
@@ -506,7 +506,7 @@ namespace shapes {
            else {
                affected = affected + (z * height);
            }
-           start = marks.str2pos(Data.aMarks[i]);
+           start = Data.aMarks[i];
        }
 
        // Change calculation of affected blocks when there are two walls or more.

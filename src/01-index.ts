@@ -19,8 +19,8 @@ function cmdFill (nBlockID: number = Data.nBuildBlock, nBlockData: number = 0): 
     let startTimer = gameplay.timeQuery(GAME_TIME);
 
     if (Data.aMarks.length > 1) {
-        let pFrom = marks.str2pos(Data.aMarks[0]);
-        let pTo = marks.getLastPos();
+        let pFrom = marks.getFirst();
+        let pTo = marks.getLast();
 
         blocks.fill(
             blocks.blockWithData(nBlockID, nBlockData), 

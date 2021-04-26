@@ -8,12 +8,14 @@
 
 
 namespace marks {
+
+    //export let Data.aMarks: Position[] = []
     
     /**
      * Shows the mark
      * @param pMark 
      */
-    function show(pMark: Position) {
+    function show(pMark: Position): void {
         blocks.place(Data.nMarkBlock, pMark);
     }
 
@@ -23,7 +25,7 @@ namespace marks {
      * Hides the mark
      * @param pMark 
      */
-    function hide(pMark: Position) {
+    function hide(pMark: Position): void {
         if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
             blocks.place(AIR, pMark);
         }
@@ -32,28 +34,33 @@ namespace marks {
 
 
     /**
-     * Sets the mark in aMarks and 
+     * Sets the mark in Data.aMarks and 
      * shows it in the world.
      * @param pMark 
      */
-    function set(pMark: Position = pos(0,0,0)): Position {
-        Data.aMarks.push(pMark.toString());
+    function set(pMark: Position): void {
+        Data.aMarks.push(pMark);
 
         if (Data.bShowMark) {
             show(pMark);
         }
-        return getLastPos();
     }
 
 
 
     /**
-     * Checks wheter the position is allready been set in aMarks.
+     * Checks wheter the position is allready been set in Data.aMarks.
      * @param pMark position to check
      * @returns -1 if not found, >= 0 if found
      */
-    export function check(pMark: Position = pos(0,0,0)): number {
-        return Data.aMarks.indexOf(pMark.toString());
+    export function check(pMark: Position): number {
+        //return Data.aMarks.indexOf(pMark.toString());
+        for(let i = 0; i < Data.aMarks.length; i++){
+            if (Data.aMarks[i].toString() == pMark.toString()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 
@@ -78,26 +85,30 @@ namespace marks {
      * @param nIndex the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
-    export function remove(pMark: Position = pos(0,0,0)): boolean {
+    export function remove(pMark?: Position): boolean {
         if (Data.aMarks.length == 0) {
             return false;
         }
 
         // Delete given position.
-        if (pMark != null) {
-            let i = Data.aMarks.indexOf(pMark.toString());
+        if (pMark != undefined) {
+            let i = check(pMark);
 
-            // remove single element.
-            if (Data.aMarks.removeElement(pMark.toString())) {
-                hide(pMark) // removed the markBlock
-                console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
-                return true;
-            }
+            // When position is not found, return false.
+            if (i == -1) { return false; }
+            
+            // Remove single element.
+            pMark = Data.aMarks.removeAt(i);
+            hide(pMark) // removed the markBlock
+            console.print(`Mark[${console.colorize(i)}] with pos(${console.colorize(pMark.toString())}) removed.`) ;
+
+            return true;
         }
 
+        // When no position was given, delete all marks.
         while (Data.aMarks.length) {
-            let sMark = Data.aMarks.get(Data.aMarks.length-1);
-            hide(str2pos(sMark));
+            let pMark = Data.aMarks.get(Data.aMarks.length-1);
+            hide(pMark);
             Data.aMarks.pop();
         }
         
@@ -119,12 +130,12 @@ namespace marks {
         Data.bShowMark = (!Data.bShowMark);
 
         for (let i = 0; i < Data.aMarks.length; i++) {
-            let sMark = Data.aMarks.get(i);
+            let pMark = Data.aMarks.get(i);
             if (Data.bShowMark) {
-                show(str2pos(sMark));
+                show(pMark);
             }
             else {
-                hide(str2pos(sMark));
+                hide(pMark);
             }
         }
         return Data.bShowMark;
@@ -147,9 +158,9 @@ namespace marks {
         }
         else {
             for (let i = 0; i < Data.aMarks.length; i++) {
-                let sMark = Data.aMarks.get(i);
-                bWorld ? show(str2pos(sMark)) : null;
-                sResult += (`Mark[${console.colorize(i)}] has pos(${console.colorize(sMark)})\n`)
+                let pMark = Data.aMarks.get(i);
+                bWorld ? show(pMark) : null;
+                sResult += (`Mark[${console.colorize(i)}] has pos(${console.colorize(pMark)})\n`)
             }
             console.print(sResult);
         }
@@ -159,19 +170,30 @@ namespace marks {
 
 
 
-    /**
-     * Returns the last position in aMarks.
+     /**
+     * Returns the last position in Data.aMarks.
      * @returns Position
      */
-    export function getLastPos(): Position {
-        return str2pos(Data.aMarks.get(Data.aMarks.length-1));
+      export function getFirst(): Position {
+        return Data.aMarks.get(0);
+    }
+
+
+
+
+    /**
+     * Returns the last position in Data.aMarks.
+     * @returns Position
+     */
+    export function getLast(): Position {
+        return Data.aMarks.get(Data.aMarks.length-1);
     }
 
 
 
     /**
-     * Returns the last index from aMarks.
-     * @returns index number of aMarks
+     * Returns the last index from Data.aMarks.
+     * @returns index number of Data.aMarks
      */
     export function getLastIndex(): number {
         return Data.aMarks.length-1;
@@ -184,18 +206,15 @@ namespace marks {
      * The command to place a mark on the map.
      * @returns string
      */
-    export function place(): string {
-        let pMark = player.position();
-
-        // Check if position is in aMarks.
+    export function place(pMark: Position): void {
+        // Check if position is in Data.aMarks.
         let i = check(pMark)
         if ( i < 0) {
-            pMark = set(pMark);
-            return (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark.toString())})`); 
+            set(pMark);
+            console.print (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark)})`); 
         }
         else {
-            return (`§cPosition allready marked!`);
+            console.print (`§cPosition allready marked!`);
         }
     }
- 
 }

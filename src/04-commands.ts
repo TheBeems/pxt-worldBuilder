@@ -111,7 +111,7 @@ player.onChatCommandCore("set", function(){
     }
     else {
         if (sParams.length == 1 && sParams[0].trim().toLowerCase() == "block") {
-            setBlock(null);
+            setBlock(undefined);
         }
     }
 })
@@ -122,7 +122,7 @@ player.onChatCommandCore("set", function(){
  * Set marks while using the Wooden Axe. 
  */
  player.onItemInteracted(WOODEN_AXE, function () {
-    console.print(marks.place());
+    marks.place(player.position());
 })
 
 
@@ -133,7 +133,7 @@ player.onChatCommandCore("set", function(){
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
-    console.print(marks.place());   
+    marks.place(player.position());   
       
 })
 
@@ -172,7 +172,7 @@ player.onChatCommandCore("unmark", function(){
                 break;
             
             case "all":
-                console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+                console.print (marks.remove() ? "All marks removed." : "There were no marks.");
                 break;
             
             default:
@@ -189,7 +189,7 @@ player.onChatCommandCore("unmark", function(){
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
-    console.print (marks.remove(null) ? "All marks removed." : "There were no marks.");
+    console.print (marks.remove(undefined) ? "All marks removed." : "There were no marks.");
 })
 
 
@@ -279,9 +279,9 @@ player.onChat("air", function () {
  */
 player.onChat("copy", function () {
     if (Data.aMarks.length == 2) {
-        builder.teleportTo(marks.str2pos(Data.aMarks[0]));
+        builder.teleportTo(marks.getFirst());
         builder.mark();
-        builder.teleportTo(marks.getLastPos());
+        builder.teleportTo(marks.getLast());
         builder.copy();
     }
 })

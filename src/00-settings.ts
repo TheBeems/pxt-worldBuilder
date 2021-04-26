@@ -39,16 +39,12 @@
 
 /**
  * Class with the Data and settings.
- * 
- * Note: aMarks stores positions as strings, because it wasn't possible 
- * to search for positions otherwise. So always have to convert results 
- * from aMark with the function str2pos().
  */
 class Data {
     static sVersion: string = "1.1";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
-    static aMarks: string[] = [];
+    static aMarks: Position[] = [];
     static nMarkBlock: number = MAGENTA_CARPET;
     static nBuildBlock: number = GRASS;
     static oShape = {
