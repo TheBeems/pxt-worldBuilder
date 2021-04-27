@@ -143,6 +143,7 @@ namespace search {
      * @param nBlockID the blockID to search
      * @returns 
      */
+    // Code from: https://en.wikipedia.org/wiki/Exponential_search
     export function exponential(pPos: Position, nSize: number, nBlockID: number): number {
         // nBlockID is found at first Y position
         if (blocks.testForBlock(nBlockID, positions.add(pPos, pos(0, 1, 0)))) {
@@ -152,7 +153,7 @@ namespace search {
         // Find range for binary search by repeated doubling
         let i = 1;
         while (i < nSize && !blocks.testForBlock(nBlockID, positions.add(pPos, pos(0, i, 0)))) {
-            i = i * 2;
+            i *= 2;
         }
         
         // Call binary search for the found range
@@ -169,9 +170,10 @@ namespace search {
      * @param nBlockID the blockID to search
      * @returns 
      */
+    // Code from: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure
     export function binary(pPos: Position, nDown: number, nUp: number, nBlockID: number): number {
-        if (nUp >= nDown) {
-            let nMid = nDown + (nUp - nDown) / 2;
+        if (nDown <= nUp) {
+            let nMid = Math.floor((nDown + nUp) / 2);
 
             let midBlock = blocks.testForBlock(nBlockID, positions.add(pPos, pos(0, nMid, 0)));
             let midLowerBlock = blocks.testForBlock(nBlockID, positions.add(pPos, pos(0, nMid-1, 0)))
@@ -189,6 +191,7 @@ namespace search {
             // if the block is both found, the block should be found downwards
             return search.binary(pPos, nDown, nMid - 1, nBlockID);
         }
+        console.error(`Block not found!`);
         return -1
     }
 }
