@@ -530,14 +530,15 @@ namespace shapes {
 
     /**
      * Makes a wall with a certain height.
-     * @param block 
-     * @param height 
-     * @returns 
+     * @param block the block id to make the wall with
+     * @param height height of the wall
+     * @returns amount of blocks added
      */
      function wall(block: number, height: number): number {
-        let start: Position;
-        let end: Position;
         let affected: number = 0;
+        let ceil: Position;
+        let end: Position;
+        let start: Position;
         let walls: number = Data.aMarks.length;
         const ext = pos(0, height - 1, 0);
 
@@ -546,14 +547,26 @@ namespace shapes {
             return 0;
         }
 
-        start = marks.getFirst();
+        // use exponentional search to find the first AIR block in Y-direction.
+        start = marks.getFirst()
+        ceil = pos(0, search.exponential(start, getMaxY(), AIR), 0);
+        
         for (let i = 1; i < walls; ++i) {
             end = Data.aMarks[i];
-            shapes.line(block, start, end, ext);
 
-           affected += calcVolume(start, end, height);
+            // If the to be created wall is lower then the 
+            // current wall, then first destroy current wall
+            if((ceil.getValue(Axis.Y) - ext.getValue(Axis.Y)) > 0) {
+                shapes.line(AIR, start, end, ceil);
+            }
+            // Make the wall.
+            shapes.line(block, start, end, ext); 
 
-           start = Data.aMarks[i];
+            // Calculate the volume of blocks that have been added.
+            affected += calcVolume(start, end, height);
+
+            // Make the next wall.
+            start = Data.aMarks[i];
        }
 
        // Change calculation of affected blocks when there are two walls or more.
