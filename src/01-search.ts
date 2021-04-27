@@ -18,7 +18,7 @@ namespace search {
      */
     export function exponential(pPos: Position, nSize: number, nBlockID: number): number {
         // nBlockID is found at first Y position
-        if (blocks.testForBlock(nBlockID, pPos)) {
+        if (blocks.testForBlock(nBlockID, positions.add(pPos, pos(0, 1, 0)))) {
             return pPos.getValue(Axis.Y);
         } 
 
