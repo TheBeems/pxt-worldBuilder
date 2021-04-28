@@ -538,6 +538,7 @@ namespace shapes {
         let affected: number = 0;
         let ceil: Position;
         let end: Position;
+        let size: number;
         let start: Position;
         let walls: number = Data.aMarks.length;
         const ext = pos(0, height - 1, 0);
@@ -549,7 +550,8 @@ namespace shapes {
 
         // use exponentional search to find the first AIR block in Y-direction.
         start = marks.getFirst()
-        ceil = pos(0, search.exponential(start, getMaxY(), AIR), 0);
+        size = getMaxY() - start.getValue(Axis.Y);
+        ceil = pos(0, search.exponential(start, size, AIR), 0);
         
         for (let i = 1; i < walls; ++i) {
             end = Data.aMarks[i];
