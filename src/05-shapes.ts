@@ -556,11 +556,18 @@ namespace shapes {
         for (let i = 1; i < walls; ++i) {
             end = Data.aMarks[i];
 
+            // Return 0 if wall height exceeds maximum heightlimit.
+            if ( height > size) {
+                console.error(`Wall height exceeds heightlimit of 255 blocks.\nMaximum height of the wall can be ${size} blocks.`);
+                return 0;
+            }
+
             // If the to be created wall is lower then the 
             // current wall, then first destroy current wall
             if((ceil.getValue(Axis.Y) - ext.getValue(Axis.Y)) > 0) {
                 shapes.line(AIR, start, end, ceil);
             }
+
             // Make the wall.
             shapes.line(block, start, end, ext); 
 
