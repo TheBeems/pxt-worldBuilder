@@ -23,7 +23,7 @@ namespace shapes {
         let amountOfBlocks: number = 0;
     
         if (init(sType, sParams)) {
-            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0 || sType == "fill") {
+            if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0 || Data.oShape.sAction || sType == "fill") {
                 switch (sType) {
                     case "sphere":
                     case "ellips":
@@ -40,7 +40,7 @@ namespace shapes {
                         break;
                     
                     case "wall":
-                        amountOfBlocks = wall(Data.nBuildBlock, Data.oShape.nHeight);
+                        amountOfBlocks = wall(Data.nBuildBlock, Data.oShape.nHeight, Data.oShape.sAction);
                         break;
                     
                     case "fill":
@@ -86,6 +86,9 @@ namespace shapes {
         Data.oShape.nLength = 0; 
         Data.oShape.sPart = "F";
         Data.oShape.bFilled = false;
+        Data.oShape.nBlockID = 0;
+        Data.oShape.nBlockData = 0;
+        Data.oShape.sAction = "";
     }
 
 
@@ -124,7 +127,13 @@ namespace shapes {
         for (let i = 0; i < sParams.length; i++) {
             if (isNaN(parseInt(sParams[i]))) {
                 // arg is not a number.
-                setPart(sParams[i]);
+
+                if( sType == "wall") {
+                    setAction(sParams[i]);
+                }
+                else {
+                    setPart(sParams[i]);
+                }
             }
             else {
                 // arg is a number.
@@ -534,56 +543,87 @@ namespace shapes {
      * @param height height of the wall
      * @returns amount of blocks added
      */
-     function wall(block: number, height: number): number {
-        let affected: number = 0;
-        let ceil: Position;
-        let end: Position;
-        let size: number;
-        let start: Position;
-        let walls: number = Data.aMarks.length;
-        const ext = pos(0, height - 1, 0);
+     function wall(nBlockID: number, nHeight: number, sAction: string): number {
+        let nAffected: number = 0;
+        let nMaxWallHeight: number;
+        let pCurWallHeight: Position;
+        let pEnd: Position;
+        let pStart: Position;
+        let nStartY: number;
+        let nCurY: number;
 
-        if (walls < 2) {
+        const nWalls: number = Data.aMarks.length;
+        const pNewWallHeight = pos(0, nHeight - 1, 0);
+        const nNewY: number = pNewWallHeight.getValue(Axis.Y);
+
+        // When there are less than two marks set, return 0.
+        if (nWalls < 2) {
             console.error(`You need atleast two marks to build a wall.`)
             return 0;
         }
 
+        pStart = marks.getFirst();
+        nStartY = pStart.getValue(Axis.Y);
+        nMaxWallHeight = getMaxY() - nStartY;
+        // Return 0 if wall height exceeds maximum heightlimit.
+        if ( nHeight > nMaxWallHeight) {
+            console.error(`Wall height exceeds heightlimit of 255 blocks.\nMaximum height of the wall can be ${nMaxWallHeight} blocks.`);
+            return 0;
+        }
+
         // use exponentional search to find the first AIR block in Y-direction.
-        start = marks.getFirst()
-        size = getMaxY() - start.getValue(Axis.Y);
-        ceil = pos(0, search.exponential(start, size, AIR), 0);
+        pCurWallHeight = pos(0, search.exponential(pStart, nMaxWallHeight, AIR), 0);
         
-        for (let i = 1; i < walls; ++i) {
-            end = Data.aMarks[i];
+        // if there is no wall yet, set pCurWallHeight to 0
+        if (pCurWallHeight.getValue(Axis.Y) == nStartY) {
+            pCurWallHeight = pos(0,0,0);
+        }
 
-            // Return 0 if wall height exceeds maximum heightlimit.
-            if ( height > size) {
-                console.error(`Wall height exceeds heightlimit of 255 blocks.\nMaximum height of the wall can be ${size} blocks.`);
-                return 0;
+        // Current wall Y-value.
+        nCurY = pCurWallHeight.getValue(Axis.Y);
+        
+        // loop through the amount of walls to make.
+        for (let i = 1; i < nWalls; ++i) {
+            pEnd = Data.aMarks[i];
+            // 
+            let topStart = positions.add(pStart, pos(0, nCurY, 0)).toWorld();
+            let topEnd = positions.add(pEnd, pos(0, nCurY, 0)).toWorld();
+
+            if (sAction == "del") {
+                shapes.line(AIR, topStart, topEnd, pos(0, -nHeight, 0));
+            } 
+            else if (sAction == "add"){
+                shapes.line(nBlockID, topStart, topEnd, pNewWallHeight);
             }
-
-            // If the to be created wall is lower then the 
-            // current wall, then first destroy current wall
-            if((ceil.getValue(Axis.Y) - ext.getValue(Axis.Y)) > 0) {
-                shapes.line(AIR, start, end, ceil);
+            else if (sAction == "destroy") {
+                // removes the current wall
+                shapes.line(AIR, pStart, pEnd, pCurWallHeight);
             }
-
-            // Make the wall.
-            shapes.line(block, start, end, ext); 
+            else { 
+                // If the to be created wall is lower then the 
+                // current wall, then replace the excess with air blocks
+                if((nCurY - nNewY) > 0) {
+                    shapes.line(AIR, topStart, topEnd, pCurWallHeight);
+                }
+                else {
+                    // If the wall to be created is higher then current, make the wall.
+                    shapes.line(nBlockID, pStart, pEnd, pNewWallHeight); 
+                }
+            }             
 
             // Calculate the volume of blocks that have been added.
-            affected += calcVolume(start, end, height);
+            nAffected += calcVolume(pStart, pEnd, nHeight);
 
             // Make the next wall.
-            start = Data.aMarks[i];
+            pStart = pEnd;
        }
 
        // Change calculation of affected blocks when there are two walls or more.
-       if (walls > 2) {
-           return affected - ((walls - 2) * height);
+       if (nWalls > 2) {
+           return nAffected - ((nWalls - 2) * nHeight);
        }
        else {
-           return affected;
+           return nAffected;
        }
     }
 }

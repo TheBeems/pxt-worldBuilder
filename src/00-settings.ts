@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-28
+ * Last modified:   2021-04-29
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.4.1";
+    static sVersion: string = "1.4.2";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -55,7 +55,8 @@ class Data {
         sPart: "F",
         bFilled: false,
         nBlockID: 0,
-        nBlockData: 0
+        nBlockData: 0,
+        sAction: ""
     }  
     static sMsgColor: string = Text.DARK_AQUA; 
     static sDbgColor: string = Text.DARK_GRAY;
@@ -88,6 +89,10 @@ function setLength(length: number) {
 function setPart(part: string) {
     Data.oShape.sPart = part;
     Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.oShape.sPart)}`) : null;
+}
+function setAction(action: string) {
+    Data.oShape.sAction = action;
+    Data.bDebug ? console.debug(`Action set to: ${console.colorize(Data.oShape.sAction)}`) : null;
 }
 function setBlock(block?:number) {
     if (block) {
