@@ -182,7 +182,7 @@ namespace shapes {
         if (Data.aMarks.length == 1 ) {
             setCenter(marks.getFirst());
         }
-        else {
+        else if (sType == "pyramid" || sType == "sphere" || sType == "ellips" || sType == "cylinder") {
             setCenter(player.position());
         }
     
