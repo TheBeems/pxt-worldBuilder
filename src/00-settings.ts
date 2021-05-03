@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-29
+ * Last modified:   2021-05-03
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.4.2";
+    static sVersion: string = "1.5";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];

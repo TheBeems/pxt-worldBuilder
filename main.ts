@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-04-29
+ * Last modified:   2021-05-03
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.4.2";
+    static sVersion: string = "1.5";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -288,8 +288,13 @@ namespace marks {
      * Shows the mark
      * @param pMark 
      */
-    function show(pMark: Position): void {
-        blocks.place(Data.nMarkBlock, pMark);
+    function show(pMark: Position, nMark?: number): void {
+        if (nMark != undefined) {
+            blocks.place(nMark, pMark);
+        }
+        else {
+            blocks.place(Data.nMarkBlock, pMark);
+        }
     }
 
 
@@ -302,6 +307,10 @@ namespace marks {
         if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
             blocks.place(AIR, pMark);
         }
+        else {
+            let pTorch = checkEditMark(pMark, true);
+            blocks.place(AIR, pTorch);
+        }
     }
 
 
@@ -313,11 +322,56 @@ namespace marks {
      */
     function set(pMark: Position): void {
         Data.aMarks.push(pMark);
-
-        if (Data.bShowMark) {
-            show(pMark);
-        }
     }
+
+
+
+
+    /**
+     * Check where to place an EditMark. Function can also check
+     * if there is already an EditMark set by searching for a Torch.
+     * @param pMark 
+     * @param bTorch 
+     * @returns 
+     */
+     function checkEditMark(pMark: Position, bTorch?: boolean): Position {
+        const pCheckpos = [
+            pos(-1,0,0), pos(1,0,0),
+            pos(0,0,-1), pos(0,0,1,),
+            pos(0,-1,0), pos(0,1,0)
+        ];
+
+        // First check X, Z positions, if no blocks besides Air/Water, then mark block beneath player.
+        for (let p of pCheckpos) {
+            let pTorch = pMark.add(p);
+            if (!bTorch) {
+                if (blocks.testForBlock(AIR, pMark) == false && blocks.testForBlock(WATER, pMark) == false) {
+                    console.debug(`Found a block at: ${pMark}`);
+                    return pMark;
+                }
+            }
+            else {
+                if (blocks.testForBlock(0x1004c, pTorch)) {
+                    return pTorch;
+                }
+                if (blocks.testForBlock(0x2004c, pTorch)) {
+                    return pTorch;
+                }
+                if (blocks.testForBlock(0x3004c, pTorch)) {
+                    return pTorch;
+                }
+                if (blocks.testForBlock(0x4004c, pTorch)) {
+                    return pTorch;
+                }
+                if (blocks.testForBlock(0x0004c, pTorch)) {
+                    return pTorch;
+                }
+            }
+        }
+        console.debug(`Nothing found...`);
+        return world(0, 255, 0);
+    }
+
 
 
 
@@ -472,17 +526,66 @@ namespace marks {
     }
 
 
-
-
     /**
      * The command to place a mark on the map.
      * @returns string
      */
-    export function place(pMark: Position): void {
+     export function place(pMark: Position, bEditMark?: boolean): void {
+        let pFoundBlock = undefined;
+        
+        // If Editmark, then check blocks around player to place mark
+        if (bEditMark) {
+            const pCheckpos = [
+                pos(-1,0,0), pos(1,0,0),
+                pos(0,0,-1), pos(0,0,1,),
+                pos(0,-1,0)
+            ];
+
+            // First check X, Z positions, if no blocks besides Air/Water, then mark block beneath player.
+            for (let p of pCheckpos) {
+                if (blocks.testForBlock(AIR, p) == false && blocks.testForBlock(WATER, p) == false) {
+                    pFoundBlock = p;
+                    break;
+                }
+            }
+        }
+
+        let pTorch = pMark;
+        pMark = pFoundBlock != undefined ? pMark.add(pFoundBlock) : pMark;
+        
         // Check if position is in Data.aMarks.
         let i = check(pMark)
         if ( i < 0) {
             set(pMark);
+            
+            // show mark in the world.
+            if (Data.bShowMark) {
+                if (pFoundBlock == undefined) {
+                    show(pMark, undefined);
+                }
+                else {
+                    let x = pFoundBlock.getValue(Axis.X);
+                    let y = pFoundBlock.getValue(Axis.Y);
+                    let z = pFoundBlock.getValue(Axis.Z);
+
+                    if (x == -1) {
+                        show(pTorch, 0x1004c); // East
+                    }
+                    else if (x == 1) {
+                        show(pTorch, 0x2004c); // West
+                    }
+                    else if (z == -1) {
+                        show(pTorch, 0x3004c); // South
+                    }
+                    else if (z == 1) {
+                        show(pTorch, 0x4004c); // North
+                    }
+                    else if(y == -1) {
+                        show(pTorch, 0x4c); // Up
+                    }
+                }
+                
+            }
             console.print (`Mark[${console.colorize(getLastIndex())}] has been set with pos(${console.colorize(pMark)})`); 
         }
         else {
@@ -615,7 +718,17 @@ player.onChatCommandCore("set", function(){
  * Set marks while using the Wooden Axe. 
  */
  player.onItemInteracted(WOODEN_AXE, function () {
-    marks.place(player.position());
+    marks.place(player.position(), false);
+})
+
+
+
+
+/**
+ * Set marks while using the Wooden Axe. 
+ */
+ player.onItemInteracted(DIAMOND_AXE, function () {
+    marks.place(player.position(), true);
 })
 
 
@@ -626,7 +739,7 @@ player.onChatCommandCore("set", function(){
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
-    marks.place(player.position());   
+    marks.place(player.position(), false);   
       
 })
 
@@ -770,8 +883,11 @@ player.onChat("paste", function () {
  * Summons a Wooden Axe to the players inventory
  */
 player.onChat("wand", function () {
-    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
-    console.print(`You received item ID: ${console.colorize(WOODEN_AXE)} (Wooden Axe)`)
+    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1);
+    console.print(`You received item ID: ${console.colorize(WOODEN_AXE)} (Wooden Axe)`);
+
+    mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_AXE, 1)
+    console.print(`You received item ID: ${console.colorize(DIAMOND_AXE)} (Diamond Axe)`)
 })
 
 
@@ -1016,7 +1132,7 @@ namespace shapes {
         if (Data.aMarks.length == 1 ) {
             setCenter(marks.getFirst());
         }
-        else {
+        else if (sType == "pyramid" || sType == "sphere" || sType == "ellips" || sType == "cylinder") {
             setCenter(player.position());
         }
     
