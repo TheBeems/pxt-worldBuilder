@@ -122,7 +122,17 @@ player.onChatCommandCore("set", function(){
  * Set marks while using the Wooden Axe. 
  */
  player.onItemInteracted(WOODEN_AXE, function () {
-    marks.place(player.position());
+    marks.place(player.position(), false);
+})
+
+
+
+
+/**
+ * Set marks while using the Wooden Axe. 
+ */
+ player.onItemInteracted(DIAMOND_AXE, function () {
+    marks.place(player.position(), true);
 })
 
 
@@ -133,7 +143,7 @@ player.onChatCommandCore("set", function(){
  * Places a mark in the world.
  */
  player.onChatCommandCore("mark", function(){
-    marks.place(player.position());   
+    marks.place(player.position(), false);   
       
 })
 
@@ -277,8 +287,11 @@ player.onChat("paste", function () {
  * Summons a Wooden Axe to the players inventory
  */
 player.onChat("wand", function () {
-    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1)
-    console.print(`You received item ID: ${console.colorize(WOODEN_AXE)} (Wooden Axe)`)
+    mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1);
+    console.print(`You received item ID: ${console.colorize(WOODEN_AXE)} (Wooden Axe)`);
+
+    mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_AXE, 1)
+    console.print(`You received item ID: ${console.colorize(DIAMOND_AXE)} (Diamond Axe)`)
 })
 
 
