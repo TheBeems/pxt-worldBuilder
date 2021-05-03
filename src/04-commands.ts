@@ -268,6 +268,7 @@ player.onChat("copy", function () {
         builder.mark();
         builder.teleportTo(marks.getLast());
         builder.copy();
+        console.print(`Blocks copied!\nPlace a 3rd Mark and type 'paste' to paste copied blocks to that position.`);
     }
 })
 
@@ -277,7 +278,12 @@ player.onChat("copy", function () {
  * Pastes the copied blocks to current position.
  */
 player.onChat("paste", function () {
-    builder.teleportTo(player.position());
+    if (Data.aMarks.length > 2) {
+        builder.teleportTo(Data.aMarks[2]);
+    }
+    else {
+        builder.teleportTo(player.position());
+    }
     builder.paste();
 })
 
