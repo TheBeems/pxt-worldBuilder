@@ -23,8 +23,8 @@ namespace search {
         dDir == Axis.X ? x = 1 : dDir == Axis.Y ? y = 1 : z = 1;
 
         // nBlockID is found at first Y position
-        if (blocks.testForBlock(nBlockID, positions.add(pPos, pos(x, y, z)))) {
-            return pPos.getValue(dDir);
+        if (blocks.testForBlock(nBlockID, pPos)) {
+            return 0;
         } 
 
         // Find range for binary search by repeated doubling
