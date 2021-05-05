@@ -571,13 +571,13 @@ namespace shapes {
             return 0;
         }
 
+        // Remove the mark if shown, otherwise the search below won't give proper results.
+        if (blocks.testForBlock(Data.nMarkBlock, pStart)) {
+            blocks.place(AIR, pStart);
+        }
+
         // use exponentional search to find the first AIR block in Y-direction.
         pCurWallHeight = pos(0, search.exponential(pStart, nMaxWallHeight, AIR), 0);
-        
-        // if there is no wall yet, set pCurWallHeight to 0
-        if (pCurWallHeight.getValue(Axis.Y) == nStartY) {
-            pCurWallHeight = pos(0,0,0);
-        }
 
         // Current wall Y-value.
         nCurY = pCurWallHeight.getValue(Axis.Y);
