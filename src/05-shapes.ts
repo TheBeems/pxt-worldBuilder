@@ -145,6 +145,7 @@ namespace shapes {
                         else {
                             if (sType == "pyramid" || sType == "wall") {
                                 setHeight(parseInt(sParams[i]));
+                                setLength(1); // needed to start making pyramid, does nothing.
                             } else { 
                                 setWidth(parseInt(sParams[i]));
                             } 
@@ -171,11 +172,11 @@ namespace shapes {
             }
         }
     
-        if (Data.oShape.nLength == -1) {
+        if (Data.oShape.nLength == 0) {
             setLength(Data.oShape.nWidth);
         }
     
-        if (Data.oShape.nHeight == -1) {
+        if (Data.oShape.nHeight == 0) {
             setHeight(Data.oShape.nWidth);
         }
     
@@ -465,6 +466,8 @@ namespace shapes {
         let height: number;
 
         size > 0 ? height = size : height = -size - 1;
+
+        console.debug(`Size: ${size}`);
 
         if (size < 0) {
             reverse = true
