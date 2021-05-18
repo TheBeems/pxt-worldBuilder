@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-05-05
+ * Last modified:   2021-05-18
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.5.2";
+    static sVersion: string = "1.5.3";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -1113,6 +1113,7 @@ namespace shapes {
                         else {
                             if (sType == "pyramid" || sType == "wall") {
                                 setHeight(parseInt(sParams[i]));
+                                setLength(1); // needed to start making pyramid, does nothing.
                             } else { 
                                 setWidth(parseInt(sParams[i]));
                             } 
@@ -1139,11 +1140,11 @@ namespace shapes {
             }
         }
     
-        if (Data.oShape.nLength == -1) {
+        if (Data.oShape.nLength == 0) {
             setLength(Data.oShape.nWidth);
         }
     
-        if (Data.oShape.nHeight == -1) {
+        if (Data.oShape.nHeight == 0) {
             setHeight(Data.oShape.nWidth);
         }
     
@@ -1433,6 +1434,8 @@ namespace shapes {
         let height: number;
 
         size > 0 ? height = size : height = -size - 1;
+
+        console.debug(`Size: ${size}`);
 
         if (size < 0) {
             reverse = true
