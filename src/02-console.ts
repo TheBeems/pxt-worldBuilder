@@ -6,6 +6,7 @@
  ******************************************************************************/
 
 namespace console {
+    
     /**
      * Wisphers a message to the player
      * @param sMessage content of the message.
@@ -13,6 +14,8 @@ namespace console {
     export function print(sMessage: any) {
         player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + "\n" + sMessage);
     }
+
+
 
     /**
      * Wisphers a debug-message to the player
@@ -24,6 +27,8 @@ namespace console {
         }
     }
 
+
+
     /**
      * Wisphers an errormessage to the player
      * @param sErrorMsg content of the error
@@ -31,6 +36,8 @@ namespace console {
     export function error(sErrorMsg: any) {
         player.errorMessage("\n" + sErrorMsg);
     }
+
+
 
     /**
      * Colorize a string with sValueColor.

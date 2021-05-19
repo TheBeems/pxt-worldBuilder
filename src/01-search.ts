@@ -16,8 +16,8 @@ namespace search {
      * @param nBlockID the blockID to search
      * @param dDir the direction in which to search
      * @returns 
+     * @link https://en.wikipedia.org/wiki/Exponential_search
      */
-    // Code from: https://en.wikipedia.org/wiki/Exponential_search
     export function exponential(pPos: Position, nSize: number, nBlockID: number, dDir: Axis = Axis.Y): number {
         let x = 0, y = 0, z = 0;
         dDir == Axis.X ? x = 1 : dDir == Axis.Y ? y = 1 : z = 1;
@@ -47,8 +47,8 @@ namespace search {
      * @param nBlockID the blockID to search
      * @param dDir the direction in which to search
      * @returns 
+     * @link https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure
      */
-    // Code from: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure
     export function binary(pPos: Position, nLeft: number, nRight: number, nBlockID: number, dDir: Axis = Axis.Y): number {
         if (nLeft <= nRight) {
             let x = 0, y = 0, z = 0, midBlock, midNextBlock, nMid;

@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-05-18
+ * Last modified:   2021-05-19
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.5.3";
+    static sVersion: string = "1.5.4";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -68,32 +68,82 @@ console.print(`WorldBuilder version (${console.colorize(Data.sVersion)}) ready! 
 
 
 
-
-
+/**
+ * Sets the center of the object to make (sphere, pyramix, cylinder)
+ * @param center 
+ */
 function setCenter(center: Position) {
     Data.oShape.pCenter = center;
     Data.bDebug ? console.debug(`Center set to: pos(${console.colorize(Data.oShape.pCenter)})`) : null;
 }
+
+
+
+/**
+ * Sets the width (X axis) of the object
+ * @param width width of the object
+ */
 function setWidth(width: number) {
     Data.oShape.nWidth = width;
     Data.bDebug ? console.debug(`Width(X) set to: ${console.colorize(Data.oShape.nWidth)}`) : null;
 }
+
+
+
+/**
+ * Sets the height (Y axis) of the object
+ * @param height height of the object
+ */
 function setHeight(height: number) {
     Data.oShape.nHeight = height;
     Data.bDebug ? console.debug(`Height(Y) set to: ${console.colorize(Data.oShape.nHeight)}`) : null;
 }
+
+
+
+/**
+ * Sets the length (Z axis) of the object
+ * @param length the length of the object
+ */
 function setLength(length: number) {
     Data.oShape.nLength = length;
     Data.bDebug ? console.debug(`Length(Z) set to: ${console.colorize(Data.oShape.nLength)}`) : null;
 }
+
+
+
+/**
+ * Sets the part of the object to make
+ * Can be: T (top), B (bottom), W (West), E (East), N (North), S (South)
+ * @param part the part of the object 
+ */
 function setPart(part: string) {
     Data.oShape.sPart = part;
     Data.bDebug ? console.debug(`Part set to: ${console.colorize(Data.oShape.sPart)}`) : null;
 }
+
+
+
+/**
+ * Sets the action for additional commands
+ * Is used in the wall command, e.g.: wall add <num>
+ * In this case 'add' is the action of the command 'wall'.
+ * @param action the action to perform (add, destroy, del)
+ */
 function setAction(action: string) {
     Data.oShape.sAction = action;
     Data.bDebug ? console.debug(`Action set to: ${console.colorize(Data.oShape.sAction)}`) : null;
 }
+
+
+
+/**
+ * Sets a block with an BlockID or when no BlockID is given
+ * the function getBlock() is used to determine the block the
+ * players is standing on.
+ * @param block the BlockID. 
+ * @link https://www.digminecraft.com/lists/item_id_list_edu.php 
+ */
 function setBlock(block?:number) {
     if (block) {
         Data.nBuildBlock = block;
@@ -104,14 +154,29 @@ function setBlock(block?:number) {
     }
 }
 
+
+
+/**
+ * Get the minimum Y
+ * @returns the minimum Y
+ */
 function getMinY(): number { return 0; }
+
+
+
+/**
+ * Get the maximum Y
+ * @returns the maximum Y
+ */
 function getMaxY(): number { return 255; }
     
+
+
 /**
  * Gets the ENUMval of the type of block player is standing on.
  * @returns block id/enum
+ * @link https://educommunity.minecraft.net/hc/en-us/community/posts/360072413711-How-to-get-the-block-id-python-code-
  */
-// Code from: https://educommunity.minecraft.net/hc/en-us/community/posts/360072413711-How-to-get-the-block-id-python-code-
  function getBlock(): number {
     agent.teleportToPlayer();
 
@@ -148,8 +213,8 @@ namespace search {
      * @param nBlockID the blockID to search
      * @param dDir the direction in which to search
      * @returns 
+     * @link https://en.wikipedia.org/wiki/Exponential_search
      */
-    // Code from: https://en.wikipedia.org/wiki/Exponential_search
     export function exponential(pPos: Position, nSize: number, nBlockID: number, dDir: Axis = Axis.Y): number {
         let x = 0, y = 0, z = 0;
         dDir == Axis.X ? x = 1 : dDir == Axis.Y ? y = 1 : z = 1;
@@ -179,8 +244,8 @@ namespace search {
      * @param nBlockID the blockID to search
      * @param dDir the direction in which to search
      * @returns 
+     * @link https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure
      */
-    // Code from: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure
     export function binary(pPos: Position, nLeft: number, nRight: number, nBlockID: number, dDir: Axis = Axis.Y): number {
         if (nLeft <= nRight) {
             let x = 0, y = 0, z = 0, midBlock, midNextBlock, nMid;
@@ -234,6 +299,7 @@ namespace search {
  ******************************************************************************/
 
 namespace console {
+    
     /**
      * Wisphers a message to the player
      * @param sMessage content of the message.
@@ -241,6 +307,8 @@ namespace console {
     export function print(sMessage: any) {
         player.tell(mobs.target(LOCAL_PLAYER), Data.sMsgColor + "\n" + sMessage);
     }
+
+
 
     /**
      * Wisphers a debug-message to the player
@@ -252,6 +320,8 @@ namespace console {
         }
     }
 
+
+
     /**
      * Wisphers an errormessage to the player
      * @param sErrorMsg content of the error
@@ -259,6 +329,8 @@ namespace console {
     export function error(sErrorMsg: any) {
         player.errorMessage("\n" + sErrorMsg);
     }
+
+
 
     /**
      * Colorize a string with sValueColor.
@@ -282,11 +354,10 @@ namespace console {
 
 namespace marks {
 
-    //export let Data.aMarks: Position[] = []
-    
     /**
-     * Shows the mark
-     * @param pMark 
+     * Show the mark as a block in the world
+     * @param pMark Position to place the mark
+     * @param nMark (optional) a BlockID to use as a mark, default is Data.nMarkBlock
      */
     function show(pMark: Position, nMark?: number): void {
         if (nMark != undefined) {
@@ -299,15 +370,19 @@ namespace marks {
 
 
 
+
     /**
-     * Hides the mark
-     * @param pMark 
+     * Hides the mark in the world
+     * @param pMark position to hide the mark block
      */
     function hide(pMark: Position): void {
+        // if the mark is same as Data.nMarkBlock
         if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
             blocks.place(AIR, pMark);
         }
         else {
+            // check to see if the mark is an EditMark (a torch)
+            // checking is slow need some improvements if possible.
             let pTorch = checkEditMark(pMark, true);
             blocks.place(AIR, pTorch);
         }
@@ -315,10 +390,10 @@ namespace marks {
 
 
 
+
     /**
-     * Sets the mark in Data.aMarks and 
-     * shows it in the world.
-     * @param pMark 
+     * Sets the mark in Data.aMarks 
+     * @param pMark position to add to Data.aMarks
      */
     function set(pMark: Position): void {
         Data.aMarks.push(pMark);
@@ -330,8 +405,8 @@ namespace marks {
     /**
      * Check where to place an EditMark. Function can also check
      * if there is already an EditMark set by searching for a Torch.
-     * @param pMark 
-     * @param bTorch 
+     * @param pMark position of the EditMark
+     * @param bTorch if false it places a torch, if true it searches for a torch
      * @returns 
      */
      function checkEditMark(pMark: Position, bTorch?: boolean): Position {
@@ -381,8 +456,8 @@ namespace marks {
      * @returns -1 if not found, >= 0 if found
      */
     export function check(pMark: Position): number {
-        //return Data.aMarks.indexOf(pMark.toString());
         for(let i = 0; i < Data.aMarks.length; i++){
+            // need to convert to string in order to compare (minecraft bug?)
             if (Data.aMarks[i].toString() == pMark.toString()) {
                 return i;
             }
@@ -392,8 +467,9 @@ namespace marks {
 
 
 
+
     /**
-     * Converts a string into a Position.
+     * Converts a string into a Position. (deprecated)
      * @param sPos string to convert 
      * @returns position X, Y, Z
      */
@@ -409,7 +485,8 @@ namespace marks {
      * Removing a mark from a certain index, or clean out
      * all the marks when no index has been given.
      * 
-     * @param nIndex the index to remove from Data.aMarks
+     * @param pMark (optional) the position to remove
+     * @param nIndex (optional) the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
     export function remove(pMark?: Position, nIndex?: number): boolean {
@@ -446,6 +523,9 @@ namespace marks {
 
     /**
      * Toggles between showing or hidding the marks.
+     * TODO:    check if there are blocks build at mark positions
+     *          might want to show a torch instead. Normal mark 
+     *          will break the block.
      * @return true/false
      */
     export function toggle(): boolean {
@@ -472,7 +552,7 @@ namespace marks {
 
     /**
      * Prints marks in chat and optionally shows them in the world.
-     * @param bPrint true/false to show position in world.
+     * @param bWorld true/false to show position in world.
      * @returns true/false
      */
     export function print(bWorld: boolean = false): boolean {
@@ -497,8 +577,8 @@ namespace marks {
 
 
      /**
-     * Returns the last position in Data.aMarks.
-     * @returns Position
+     * Returns the first position in Data.aMarks.
+     * @returns position
      */
       export function getFirst(): Position {
         return Data.aMarks.get(0);
@@ -509,11 +589,12 @@ namespace marks {
 
     /**
      * Returns the last position in Data.aMarks.
-     * @returns Position
+     * @returns position
      */
     export function getLast(): Position {
         return Data.aMarks.get(Data.aMarks.length-1);
     }
+
 
 
 
@@ -526,11 +607,15 @@ namespace marks {
     }
 
 
+
+
     /**
      * The command to place a mark on the map.
-     * @returns string
+     * @param pMark position of the mark
+     * @param bEditMark true/false if it will be an EditMark
      */
      export function place(pMark: Position, bEditMark?: boolean): void {
+        // the block found at a mark
         let pFoundBlock = undefined;
         
         // If Editmark, then check blocks around player to place mark
@@ -560,10 +645,11 @@ namespace marks {
             
             // show mark in the world.
             if (Data.bShowMark) {
+                // if normal mark
                 if (pFoundBlock == undefined) {
                     show(pMark, undefined);
                 }
-                else {
+                else { // mark is an EditMark and torch should be placed 
                     let x = pFoundBlock.getValue(Axis.X);
                     let y = pFoundBlock.getValue(Axis.Y);
                     let z = pFoundBlock.getValue(Axis.Z);
@@ -681,6 +767,7 @@ namespace marks {
 
 
 
+
 /**
  * Sets different paramters in the game through commands.
  */
@@ -711,18 +798,15 @@ player.onChatCommandCore("set", function(){
             case "block":
                 setBlock(parseInt(sParam));
                 break;
-            
-            case "center":
-                setCenter(marks.str2pos(sParam));
-                break;
         }
     }
-    else {
+    else { // if only 'set block' is used as command
         if (sParams.length == 1 && sParams[0].trim().toLowerCase() == "block") {
             setBlock(undefined);
         }
     }
 })
+
 
 
 
@@ -742,7 +826,6 @@ player.onChatCommandCore("set", function(){
  player.onItemInteracted(DIAMOND_AXE, function () {
     marks.place(player.position(), true);
 })
-
 
 
 
@@ -777,6 +860,7 @@ player.onChatCommandCore("set", function(){
 
 
 
+
 /**
  * Command to remove a mark from the world.
  */
@@ -785,7 +869,7 @@ player.onChatCommandCore("unmark", function(){
 
     for (let arg of args) {
         if (!isNaN(parseInt(arg))) {
-            // arg is a number
+            // arg is a number, so remove mark at index <arg>
             marks.remove(undefined, parseInt(arg));
             break;
 
@@ -805,12 +889,14 @@ player.onChatCommandCore("unmark", function(){
 
 
 
+
 /**
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
     console.print (marks.remove() ? "All marks removed." : "There were no marks.");
 })
+
 
 
 
@@ -839,6 +925,7 @@ player.onChatCommandCore("showmarks", function(){
 
 
 
+
 /**
  * Toggles between showing and hidding the marks in the world.
  */
@@ -850,6 +937,7 @@ player.onChatCommandCore("togglemarks", function(){
         console.print (`Marks ${console.colorize("hidden")}.`)
     }
 })
+
 
 
 
@@ -882,8 +970,10 @@ player.onChat("copy", function () {
 
 
 
+
 /**
- * Pastes the copied blocks to current position.
+ * Pastes the copied blocks to current position or
+ * to the third mark set in Data.aMarks
  */
 player.onChat("paste", function () {
     if (Data.aMarks.length > 2) {
@@ -897,8 +987,9 @@ player.onChat("paste", function () {
 
 
 
+
 /**
- * Summons a Wooden Axe to the players inventory
+ * Summons a Wooden Axe (mark) and Diamond Axe (editmark) to the players inventory
  */
 player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1);
@@ -907,6 +998,7 @@ player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_AXE, 1)
     console.print(`You received item ID: ${console.colorize(DIAMOND_AXE)} (Diamond Axe)`)
 })
+
 
 
 
@@ -923,6 +1015,7 @@ player.onChat("wand", function () {
 
 
 
+
 /**
  * Command: sphere <radius>
  * Creates a full hollow sphere
@@ -932,6 +1025,7 @@ player.onChatCommandCore("sphere", function () {
 
     shapes.build("sphere", sParams);
 })
+
 
 
 
@@ -945,6 +1039,9 @@ player.onChatCommandCore("sphere", function () {
     shapes.build("cylinder", sParams);
 })
 
+
+
+
 /**
  * Command: pyramid <height>
  * Creates a hollow pyramid
@@ -955,6 +1052,9 @@ player.onChatCommandCore("sphere", function () {
     shapes.build("pyramid", sParams);
 })
 
+
+
+
 /**
 * Command: wall <height>
 * Creates a wall between two or more marks
@@ -964,7 +1064,6 @@ player.onChatCommandCore("wall", function () {
 
    shapes.build("wall", sParams);
 })
-
 
 /******************************************************************************
  * 
@@ -982,14 +1081,18 @@ namespace shapes {
 
     /**
      * Build function to initialize the shape to be build and deciding which 
-     * function to use to build it.
+     * function to use to build with.
      * @param sType The type of shape to build.
      * @param sParams The parameters to use for building.
      */
      export function build(sType: string, sParams: string[]) {
+         // start a timer to see how long it took to build the shape
         let startTimer = gameplay.timeQuery(GAME_TIME);
+
+        // the number of blocks used to build with
         let amountOfBlocks: number = 0;
     
+        // first run init() in order to set all the different parameters (width, height, length, et cetera)
         if (init(sType, sParams)) {
             if(Data.oShape.nWidth > 0 || Data.oShape.nHeight > 0 || Data.oShape.nLength > 0 || Data.oShape.sAction || sType == "fill") {
                 switch (sType) {
@@ -1020,18 +1123,20 @@ namespace shapes {
                         
                 }
                 
+                // stop the timer and convert game time to seconds (20 game time is 1 second)
                 let amountOfSeconds = (gameplay.timeQuery(GAME_TIME)-startTimer)/20
         
                 console.print(`${amountOfBlocks} blocks added in ${amountOfSeconds} seconds.`);
-                reset();
+                reset(); // reset all the parameters
             }
             else {
                 switch(sType) {
                     case "sphere":
-                        console.error(`Please specify the radius of the sphere. For example: \\sphere 5`);
+                        console.error(`Please specify the radius of the sphere. For example: sphere 5`);
                         break;
 
                     case "ellips":
+                        console.error(`Please specify the radius of the ellips. For example: ellips 5 7 6`);
                         break;
                     
                     default:
@@ -1041,6 +1146,7 @@ namespace shapes {
             }
         }
     }
+
 
 
 
@@ -1071,18 +1177,22 @@ namespace shapes {
     function init(sType: string, sParams: string[]): boolean {
         let n: number = 0; // iterate through the parameters that are numbers.
         
+        // when there are no additional parameters given
         if (sParams.length == 0) {
+            // need at least two marks for a wall or fill command
             if (Data.aMarks.length < 2) {
                 console.print (`No marks to use.`);
                 return false;
             }
 
+            // determine the type of object to build
             switch (sType) {
                 case "wall":
-                    setHeight(1);
+                    setHeight(1); // minimum height of wall
                     return true;
                 
                 case "fill":
+                    // set the BlockID to fill with
                     Data.oShape.nBlockID = Data.nBuildBlock;
                     Data.oShape.nBlockData = 0;
                     return true;
@@ -1092,14 +1202,17 @@ namespace shapes {
             }
         }
         
+        // loop through the amount of parameters
         for (let i = 0; i < sParams.length; i++) {
             if (isNaN(parseInt(sParams[i]))) {
                 // arg is not a number.
 
                 if( sType == "wall") {
+                    // actions can be 'add', 'del' or 'destroy'
                     setAction(sParams[i]);
                 }
                 else {
+                    // part can be 'T' (top), 'B' (bottom), 'E' (East), 'W' (West)
                     setPart(sParams[i]);
                 }
             }
@@ -1107,14 +1220,16 @@ namespace shapes {
                 // arg is a number.
                 switch(n) {
                     case 0:
+                        // if fill command, then first number is blockID
                         if (sType == "fill") {
                             Data.oShape.nBlockID = parseInt(sParams[i]);
                         }
                         else {
+                            // if pyramid / wall, first number is the height
                             if (sType == "pyramid" || sType == "wall") {
                                 setHeight(parseInt(sParams[i]));
-                                setLength(1); // needed to start making pyramid, does nothing.
-                            } else { 
+                                setLength(1); // needed to start making pyramid, does nothing for pyramid or wall
+                            } else { // for all other objects, first number is the width (X axis)
                                 setWidth(parseInt(sParams[i]));
                             } 
                         }
@@ -1123,16 +1238,18 @@ namespace shapes {
                         break;
                     
                     case 1:
+                        // if fill command, then second number is blockData
                         if (sType == "fill") {
                             Data.oShape.nBlockData = parseInt(sParams[i]);
                         }
-                        else {
+                        else { // for all other objects, second number is the height (Y axis)
                             setHeight(parseInt(sParams[i]));
                         };
                         n++;
                         break;
                     
                     case 2:
+                        // third number is the length (Z axis)
                         setLength(parseInt(sParams[i]));
                         n++
                         break;
@@ -1140,14 +1257,21 @@ namespace shapes {
             }
         }
     
+        // used for sphere / ellips to set
+        // height equal to width
+        if (Data.oShape.nHeight == 0) {
+            setHeight(Data.oShape.nWidth);
+        }
+
+        // used for sphere / ellips to set
+        // length equal to width
         if (Data.oShape.nLength == 0) {
             setLength(Data.oShape.nWidth);
         }
     
-        if (Data.oShape.nHeight == 0) {
-            setHeight(Data.oShape.nWidth);
-        }
-    
+        // if only 1 mark is set, then place
+        // the center at mark position, otherwise 
+        // use player position
         if (Data.aMarks.length == 1 ) {
             setCenter(marks.getFirst());
         }
@@ -1159,13 +1283,43 @@ namespace shapes {
     }
 
 
+
+
+    /**
+     * Get the length from x and z axis, squared
+     * @param x 
+     * @param z 
+     * @returns 
+     */
     function lengthSq2(x: number, z: number) {
         return (x * x) + (z * z)
     }
+
+
+
+
+    /**
+     * Get the length from x, y and z axis, square
+     * @param x 
+     * @param y 
+     * @param z 
+     * @returns 
+     */
     function lengthSq3(x: number, y: number, z: number) {
         return (x * x) + (y * y) + (z * z)
     }
 
+
+
+
+    /**
+     * Calculate the amount of blocks of a cuboid region.
+     * Used for wall and the fill commands.
+     * @param pStart start position
+     * @param pEnd end position
+     * @param pHeight the height incease of a flat wall
+     * @returns 
+     */
     function calcVolume(pStart: Position, pEnd: Position, pHeight?: number): number {
         // Variables needed for calculating the amount of blocks affected
         let x1 = pStart.getValue(Axis.X);
@@ -1186,6 +1340,15 @@ namespace shapes {
         return (pHeight == undefined) ? x * y * z : (x > z) ? x * pHeight : z * pHeight;
     }
 
+
+
+
+    /**
+     * Fills an area between two marks with blocks
+     * @param nBlockID blockID to use (default: 2 - GRASS)
+     * @param nBlockData blockData to use (default: 0)
+     * @returns amount of blocks used
+     */
     function fill(nBlockID: number, nBlockData: number): number {
         if (Data.aMarks.length > 1) {
             let pFrom = marks.getFirst();
@@ -1205,27 +1368,30 @@ namespace shapes {
                 console.print(msg + `and blockData: ${console.colorize(nBlockData)}`)
             }
 
+            // calculate the amount of blocks that fill op the region
             return calcVolume(pFrom, pTo);
         }
+        // can't fill with only 1 mark, so return -1
         return -1;
     }
 
 
 
+
     /**
-     * Function to create the actual sphere in the world.
+     * Function to create a sphere or ellipsiod in the world
      * @param pCenter the position which is the center of the sphere
-     * @param block the blockID to use
-     * @param radiusX 
-     * @param radiusY 
-     * @param radiusZ 
-     * @param filled Filled if true, hollow by default.
-     * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
+     * @param nBlockID the blockID to use
+     * @param radiusX the radius for the X-axis (East/West, e.g. width)
+     * @param radiusY the radius for the Y-axis (Up/Down, e.g. height)
+     * @param radiusZ the radius for the Z-Axis (North/South, e.g. length)
+     * @param bFilled Filled if true, hollow by default.
+     * @param sPart Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
      * @returns 
      */
     // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1762
-    function ellipsoid(pCenter: Position, block: number, radiusX: number, radiusY: number, radiusZ: number, filled: boolean, part: string): number {
-        let affected: number = 0;
+    function ellipsoid(pCenter: Position, nBlockID: number, radiusX: number, radiusY: number, radiusZ: number, bFilled: boolean, sPart: string): number {
+        let nAffected: number = 0;
     
         pCenter = pCenter.toWorld();
     
@@ -1265,7 +1431,7 @@ namespace shapes {
                         break forZ;
                     }
     
-                    if (!filled) {
+                    if (!bFilled) {
                         if (lengthSq3(nextXn, yn, zn) <= 1 && lengthSq3(xn, nextYn, zn) <= 1 && lengthSq3(xn, yn, nextZn) <= 1) {
                             continue;
                         }
@@ -1280,80 +1446,82 @@ namespace shapes {
                      * South (positive Z)   East (positive X)   Up (positive Y)
                      */
                     //Top
-                    if (part == "TSE" || part == "TS" || part == "E" || part == "T" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                        ++affected;
+                    if (sPart == "TSE" || sPart == "TS" || sPart == "E" || sPart == "T" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                        ++nAffected;
                     }
-                    if (part == "TSW" || part == "TS" || part == "W" || part == "T" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                        ++affected;
+                    if (sPart == "TSW" || sPart == "TS" || sPart == "W" || sPart == "T" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, z)));
+                        ++nAffected;
                     }
-                    if (part == "TNE" || part == "TN" || part == "E" || part == "T" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                        ++affected;
+                    if (sPart == "TNE" || sPart == "TN" || sPart == "E" || sPart == "T" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, -z)));
+                        ++nAffected;
                     }
-                    if (part == "TNW" || part == "TN" || part == "W" || part == "T" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                        ++affected;
+                    if (sPart == "TNW" || sPart == "TN" || sPart == "W" || sPart == "T" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
+                        ++nAffected;
                     }
                     // Bottom
-                     if (part == "BSE" || part == "BS" || part == "E" || part == "B" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, -y, z)));
-                        ++affected;
+                     if (sPart == "BSE" || sPart == "BS" || sPart == "E" || sPart == "B" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, -y, z)));
+                        ++nAffected;
                     }
-                    if (part == "BSE" || part == "BS" || part == "W" || part == "B" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, -y, z)));
-                        ++affected;
+                    if (sPart == "BSE" || sPart == "BS" || sPart == "W" || sPart == "B" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, -y, z)));
+                        ++nAffected;
                     }
-                    if (part == "BNE" || part == "BN" || part == "E" || part == "B" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, -y, -z)));
-                        ++affected;
+                    if (sPart == "BNE" || sPart == "BN" || sPart == "E" || sPart == "B" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, -y, -z)));
+                        ++nAffected;
                     }
-                    if (part == "BNW" || part == "BN" || part == "W" || part == "B" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, -y, -z)));
-                        ++affected;
+                    if (sPart == "BNW" || sPart == "BN" || sPart == "W" || sPart == "B" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, -y, -z)));
+                        ++nAffected;
                     }
                 }
             }
         }
-        return affected;
+        return nAffected;
     }
 
 
 
+
     /**
-     * Function to create the actual sphere in the world.
-     * @param pCenter the position which is the center of the sphere
-     * @param block the blockID to use
-     * @param radiusX 
-     * @param radiusY 
-     * @param radiusZ 
-     * @param filled Filled if true, hollow by default.
-     * @param part Specifies the part of the sphere to be build (top, bottom, west, east, north, south, etc.)
+     * Function to create a cylinder. When height is a negative number the
+     * cylinder is build downwards.
+     * @param pCenter the position which is the center of the cylinder
+     * @param nBlockID the blockID to use
+     * @param radiusX the radius for the X-axis (East/West, e.g. width)
+     * @param nHeight the height of the cylinder
+     * @param radiusZ the radius for the Z-Axis (North/South, e.g. length) 
+     * @param bFilled Filled if true, hollow by default.
+     * @param sPart Specifies the part of the sphere to be build (west, east, north, south)
      * @returns 
-     */
-    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1668
-     function cylinder(pCenter: Position, block: number, radiusX: number, height: number, radiusZ: number, filled: boolean, part: string): number {
-        let affected: number = 0;
+     * @link https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1668
+     */ 
+    function cylinder(pCenter: Position, nBlockID: number, radiusX: number, nHeight: number, radiusZ: number, bFilled: boolean, sPart: string): number {
+        let nAffected: number = 0;
     
         pCenter = pCenter.toWorld();
 
         radiusX += 0.5;
         radiusZ += 0.5;
 
-        if (height == 0) {
+        if (nHeight == 0) {
             return 0;
-        } else if (height < 0) {
+        } else if (nHeight < 0) {
             // if height is negative, then build cylinder downwards from pCenter.
-            pCenter = positions.add(pCenter, pos(0, height, 0));
-            height = -height; // make height a positive number.
+            pCenter = positions.add(pCenter, pos(0, nHeight, 0));
+            nHeight = -nHeight; // make height a positive number.
         }
 
         // not sure if this is really needed?
         if (pCenter.getValue(Axis.Y) < getMinY()) {
             pCenter = world(pCenter.getValue(Axis.X), getMinY(), pCenter.getValue(Axis.Z));
-        } else if (pCenter.getValue(Axis.Y) + height - 1 > getMaxY()) {
-            height = getMaxY() - pCenter.getValue(Axis.Y) + 1;
+        } else if (pCenter.getValue(Axis.Y) + nHeight - 1 > getMaxY()) {
+            nHeight = getMaxY() - pCenter.getValue(Axis.Y) + 1;
         }
 
         const invRadiusX = 1 / radiusX;
@@ -1379,7 +1547,7 @@ namespace shapes {
                     break forZ;
                 }
 
-                if (!filled) {
+                if (!bFilled) {
                     if (lengthSq2(nextXn, zn) <= 1 && lengthSq2(xn, nextZn) <= 1) {
                         continue;
                     }
@@ -1392,111 +1560,114 @@ namespace shapes {
                  * North (negative Z)   West (negative X)   Down (negative Y)
                  * South (positive Z)   East (positive X)   Up (positive Y)
                  */
-                for (let y = 0; y < height; ++y) {
-                    if (part == "SE" || part == "S" || part == "E" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                        ++affected;
+                for (let y = 0; y < nHeight; ++y) {
+                    if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                        ++nAffected;
                     }
-                    if (part == "SW" || part == "S" || part == "W" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                        ++affected;
+                    if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, z)));
+                        ++nAffected;
                     }
-                    if (part == "NE" || part == "N" || part == "E" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                        ++affected;
+                    if (sPart == "NE" || sPart == "N" || sPart == "E" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, -z)));
+                        ++nAffected;
                     }
-                    if (part == "NW" || part == "N" || part == "W" || part == "F") {
-                        blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                        ++affected;
+                    if (sPart == "NW" || sPart == "N" || sPart == "W" || sPart == "F") {
+                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
+                        ++nAffected;
                     }
                 }
             }
         }
-        return affected;
+        return nAffected;
     }
 
 
 
+
     /**
-     * Makes a pyramid.
-     *
-     * @param position a position
-     * @param block a block
-     * @param size size of pyramid
-     * @param filled true if filled
+     * Creates a pyramid in the world. When size is a negative number, the
+     * pyramid is build upsidedown.
+     * @param pCenter the center position to build at
+     * @param nBlockID blockID to build with
+     * @param nSize size of pyramid
+     * @param bFilled true if filled
+     * @param sPart the part of the pyramid (north, south, east, west)
      * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
+     * @link https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1848
      */
-    // Code from: https://github.com/EngineHub/WorldEdit/blob/5aa81ff96efc661f051758c94e0d171c4ec40277/worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java#L1848
-     function pyramid(pCenter: Position, block: number, size: number, filled: boolean, part: string): number {
-        let affected = 0;
-        let reverse: boolean = false
-        let height: number;
+     function pyramid(pCenter: Position, nBlockID: number, nSize: number, bFilled: boolean, sPart: string): number {
+        let nAffected = 0;
+        let bReverse: boolean = false
+        let nHeight: number;
 
-        size > 0 ? height = size : height = -size - 1;
+        // set height of the pyramid
+        nSize > 0 ? nHeight = nSize : nHeight = -nSize - 1;
 
-        console.debug(`Size: ${size}`);
-
-        if (size < 0) {
-            reverse = true
-            size = 0;
+        // if size is negative, the pyramid is build upsidedown
+        if (nSize < 0) {
+            bReverse = true
+            nSize = 0; // begin building with 1 block
         }
 
-        for (let y = 0; y <= height; ++y) {
-            if (!reverse) {
-                size--;
-                for (let x = 0; x <= size; ++x) {
-                    for (let z = 0; z <= size; ++z) {
+        for (let y = 0; y <= nHeight; ++y) {
+            // build a normal pyramid
+            if (!bReverse) {
+                nSize--;
+                for (let x = 0; x <= nSize; ++x) {
+                    for (let z = 0; z <= nSize; ++z) {
 
-                        if ((filled && z <= size && x <= size) || z == size || x == size) {
+                        if ((bFilled && z <= nSize && x <= nSize) || z == nSize || x == nSize) {
 
-                            if (part == "SE" || part == "S" || part == "E" || part == "F") {
-                                blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                                ++affected;
+                            if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
+                                blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                                ++nAffected;
                             }
-                            if (part == "SW" || part == "S" || part == "W" || part == "F") {
-                                blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                                ++affected;
+                            if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
+                                blocks.place(nBlockID, positions.add(pCenter, world(-x, y, z)));
+                                ++nAffected;
                             }
-                            if (part == "NE" || part == "N" || part == "E" || part == "F") {
-                                blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                                ++affected;
+                            if (sPart == "NE" || sPart == "N" || sPart == "E" || sPart == "F") {
+                                blocks.place(nBlockID, positions.add(pCenter, world(x, y, -z)));
+                                ++nAffected;
                             }
-                            if (part == "NW" || part == "N" || part == "W" || part == "F") {
-                                blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                                ++affected;
+                            if (sPart == "NW" || sPart == "N" || sPart == "W" || sPart == "F") {
+                                blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
+                                ++nAffected;
                             }
                         }
                     }
                 }
             }
-            else {
+            else { // build a pyramid upsidedown
+                // place 1 block at the center
                 if (y == 0) {
-                    blocks.place(block, positions.add(pCenter, world(0, y, 0)));
-                    ++affected;
+                    blocks.place(nBlockID, positions.add(pCenter, world(0, y, 0)));
+                    ++nAffected;
                 }
-                else {
-                    size++;
-                    for (let x = size; x >= 0; --x) {
-                        for (let z = size; z >= 0; --z) {
+                else { // continue making squares on top of eachother
+                    nSize++;
+                    for (let x = nSize; x >= 0; --x) {
+                        for (let z = nSize; z >= 0; --z) {
                             
-                            if ((filled && z <= size && x <= size) || z == size || x == size) {
+                            if ((bFilled && z <= nSize && x <= nSize) || z == nSize || x == nSize) {
 
-                                if (part == "SE" || part == "S" || part == "E" || part == "F") {
-                                blocks.place(block, positions.add(pCenter, world(x, y, z)));
-                                ++affected;
+                                if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
+                                blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                                ++nAffected;
                                 }
-                                if (part == "SW" || part == "S" || part == "W" || part == "F") {
-                                    blocks.place(block, positions.add(pCenter, world(-x, y, z)));
-                                    ++affected;
+                                if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
+                                    blocks.place(nBlockID, positions.add(pCenter, world(-x, y, z)));
+                                    ++nAffected;
                                 }
-                                if (part == "NE" || part == "N" || part == "E" || part == "F") {
-                                    blocks.place(block, positions.add(pCenter, world(x, y, -z)));
-                                    ++affected;
+                                if (sPart == "NE" || sPart == "N" || sPart == "E" || sPart == "F") {
+                                    blocks.place(nBlockID, positions.add(pCenter, world(x, y, -z)));
+                                    ++nAffected;
                                 }
-                                if (part == "NW" || part == "N" || part == "W" || part == "F") {
-                                    blocks.place(block, positions.add(pCenter, world(-x, y, -z)));
-                                    ++affected;
+                                if (sPart == "NW" || sPart == "N" || sPart == "W" || sPart == "F") {
+                                    blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
+                                    ++nAffected;
                                 }
                             }
                         }
@@ -1504,14 +1675,17 @@ namespace shapes {
                 }   
             }
         }
-        return affected;
+        return nAffected;
     }
+
+
 
 
     /**
      * Makes a wall with a certain height.
-     * @param block the block id to make the wall with
-     * @param height height of the wall
+     * @param nBlockID the blockID to make the wall with
+     * @param nHeight height of the wall
+     * @param sAction additional action for wall command
      * @returns amount of blocks added
      */
      function wall(nBlockID: number, nHeight: number, sAction: string): number {

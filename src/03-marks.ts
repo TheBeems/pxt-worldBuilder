@@ -9,11 +9,10 @@
 
 namespace marks {
 
-    //export let Data.aMarks: Position[] = []
-    
     /**
-     * Shows the mark
-     * @param pMark 
+     * Show the mark as a block in the world
+     * @param pMark Position to place the mark
+     * @param nMark (optional) a BlockID to use as a mark, default is Data.nMarkBlock
      */
     function show(pMark: Position, nMark?: number): void {
         if (nMark != undefined) {
@@ -26,15 +25,19 @@ namespace marks {
 
 
 
+
     /**
-     * Hides the mark
-     * @param pMark 
+     * Hides the mark in the world
+     * @param pMark position to hide the mark block
      */
     function hide(pMark: Position): void {
+        // if the mark is same as Data.nMarkBlock
         if (blocks.testForBlock(Data.nMarkBlock, pMark)) {
             blocks.place(AIR, pMark);
         }
         else {
+            // check to see if the mark is an EditMark (a torch)
+            // checking is slow need some improvements if possible.
             let pTorch = checkEditMark(pMark, true);
             blocks.place(AIR, pTorch);
         }
@@ -42,10 +45,10 @@ namespace marks {
 
 
 
+
     /**
-     * Sets the mark in Data.aMarks and 
-     * shows it in the world.
-     * @param pMark 
+     * Sets the mark in Data.aMarks 
+     * @param pMark position to add to Data.aMarks
      */
     function set(pMark: Position): void {
         Data.aMarks.push(pMark);
@@ -57,8 +60,8 @@ namespace marks {
     /**
      * Check where to place an EditMark. Function can also check
      * if there is already an EditMark set by searching for a Torch.
-     * @param pMark 
-     * @param bTorch 
+     * @param pMark position of the EditMark
+     * @param bTorch if false it places a torch, if true it searches for a torch
      * @returns 
      */
      function checkEditMark(pMark: Position, bTorch?: boolean): Position {
@@ -108,8 +111,8 @@ namespace marks {
      * @returns -1 if not found, >= 0 if found
      */
     export function check(pMark: Position): number {
-        //return Data.aMarks.indexOf(pMark.toString());
         for(let i = 0; i < Data.aMarks.length; i++){
+            // need to convert to string in order to compare (minecraft bug?)
             if (Data.aMarks[i].toString() == pMark.toString()) {
                 return i;
             }
@@ -119,8 +122,9 @@ namespace marks {
 
 
 
+
     /**
-     * Converts a string into a Position.
+     * Converts a string into a Position. (deprecated)
      * @param sPos string to convert 
      * @returns position X, Y, Z
      */
@@ -136,7 +140,8 @@ namespace marks {
      * Removing a mark from a certain index, or clean out
      * all the marks when no index has been given.
      * 
-     * @param nIndex the index to remove from Data.aMarks
+     * @param pMark (optional) the position to remove
+     * @param nIndex (optional) the index to remove from Data.aMarks
      * @returns true on succes or false when there are no marks.
      */
     export function remove(pMark?: Position, nIndex?: number): boolean {
@@ -173,6 +178,9 @@ namespace marks {
 
     /**
      * Toggles between showing or hidding the marks.
+     * TODO:    check if there are blocks build at mark positions
+     *          might want to show a torch instead. Normal mark 
+     *          will break the block.
      * @return true/false
      */
     export function toggle(): boolean {
@@ -199,7 +207,7 @@ namespace marks {
 
     /**
      * Prints marks in chat and optionally shows them in the world.
-     * @param bPrint true/false to show position in world.
+     * @param bWorld true/false to show position in world.
      * @returns true/false
      */
     export function print(bWorld: boolean = false): boolean {
@@ -224,8 +232,8 @@ namespace marks {
 
 
      /**
-     * Returns the last position in Data.aMarks.
-     * @returns Position
+     * Returns the first position in Data.aMarks.
+     * @returns position
      */
       export function getFirst(): Position {
         return Data.aMarks.get(0);
@@ -236,11 +244,12 @@ namespace marks {
 
     /**
      * Returns the last position in Data.aMarks.
-     * @returns Position
+     * @returns position
      */
     export function getLast(): Position {
         return Data.aMarks.get(Data.aMarks.length-1);
     }
+
 
 
 
@@ -253,11 +262,15 @@ namespace marks {
     }
 
 
+
+
     /**
      * The command to place a mark on the map.
-     * @returns string
+     * @param pMark position of the mark
+     * @param bEditMark true/false if it will be an EditMark
      */
      export function place(pMark: Position, bEditMark?: boolean): void {
+        // the block found at a mark
         let pFoundBlock = undefined;
         
         // If Editmark, then check blocks around player to place mark
@@ -287,10 +300,11 @@ namespace marks {
             
             // show mark in the world.
             if (Data.bShowMark) {
+                // if normal mark
                 if (pFoundBlock == undefined) {
                     show(pMark, undefined);
                 }
-                else {
+                else { // mark is an EditMark and torch should be placed 
                     let x = pFoundBlock.getValue(Axis.X);
                     let y = pFoundBlock.getValue(Axis.Y);
                     let z = pFoundBlock.getValue(Axis.Z);

@@ -85,6 +85,7 @@
 
 
 
+
 /**
  * Sets different paramters in the game through commands.
  */
@@ -115,18 +116,15 @@ player.onChatCommandCore("set", function(){
             case "block":
                 setBlock(parseInt(sParam));
                 break;
-            
-            case "center":
-                setCenter(marks.str2pos(sParam));
-                break;
         }
     }
-    else {
+    else { // if only 'set block' is used as command
         if (sParams.length == 1 && sParams[0].trim().toLowerCase() == "block") {
             setBlock(undefined);
         }
     }
 })
+
 
 
 
@@ -146,7 +144,6 @@ player.onChatCommandCore("set", function(){
  player.onItemInteracted(DIAMOND_AXE, function () {
     marks.place(player.position(), true);
 })
-
 
 
 
@@ -181,6 +178,7 @@ player.onChatCommandCore("set", function(){
 
 
 
+
 /**
  * Command to remove a mark from the world.
  */
@@ -189,7 +187,7 @@ player.onChatCommandCore("unmark", function(){
 
     for (let arg of args) {
         if (!isNaN(parseInt(arg))) {
-            // arg is a number
+            // arg is a number, so remove mark at index <arg>
             marks.remove(undefined, parseInt(arg));
             break;
 
@@ -209,12 +207,14 @@ player.onChatCommandCore("unmark", function(){
 
 
 
+
 /**
  * Clears all the marks from memory.
  */
 player.onChatCommandCore("clearmarks", function(){
     console.print (marks.remove() ? "All marks removed." : "There were no marks.");
 })
+
 
 
 
@@ -243,6 +243,7 @@ player.onChatCommandCore("showmarks", function(){
 
 
 
+
 /**
  * Toggles between showing and hidding the marks in the world.
  */
@@ -254,6 +255,7 @@ player.onChatCommandCore("togglemarks", function(){
         console.print (`Marks ${console.colorize("hidden")}.`)
     }
 })
+
 
 
 
@@ -286,8 +288,10 @@ player.onChat("copy", function () {
 
 
 
+
 /**
- * Pastes the copied blocks to current position.
+ * Pastes the copied blocks to current position or
+ * to the third mark set in Data.aMarks
  */
 player.onChat("paste", function () {
     if (Data.aMarks.length > 2) {
@@ -301,8 +305,9 @@ player.onChat("paste", function () {
 
 
 
+
 /**
- * Summons a Wooden Axe to the players inventory
+ * Summons a Wooden Axe (mark) and Diamond Axe (editmark) to the players inventory
  */
 player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), WOODEN_AXE, 1);
@@ -311,6 +316,7 @@ player.onChat("wand", function () {
     mobs.give(mobs.target(LOCAL_PLAYER), DIAMOND_AXE, 1)
     console.print(`You received item ID: ${console.colorize(DIAMOND_AXE)} (Diamond Axe)`)
 })
+
 
 
 
@@ -327,6 +333,7 @@ player.onChat("wand", function () {
 
 
 
+
 /**
  * Command: sphere <radius>
  * Creates a full hollow sphere
@@ -336,6 +343,7 @@ player.onChatCommandCore("sphere", function () {
 
     shapes.build("sphere", sParams);
 })
+
 
 
 
@@ -349,6 +357,9 @@ player.onChatCommandCore("sphere", function () {
     shapes.build("cylinder", sParams);
 })
 
+
+
+
 /**
  * Command: pyramid <height>
  * Creates a hollow pyramid
@@ -359,6 +370,9 @@ player.onChatCommandCore("sphere", function () {
     shapes.build("pyramid", sParams);
 })
 
+
+
+
 /**
 * Command: wall <height>
 * Creates a wall between two or more marks
@@ -368,4 +382,3 @@ player.onChatCommandCore("wall", function () {
 
    shapes.build("wall", sParams);
 })
-
