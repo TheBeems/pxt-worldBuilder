@@ -9,7 +9,7 @@
 
 ## Installation
 
-### Method 1
+### Method 1 (release-version)
 
 * Download the `worldBuilder-<version>.mkcd` file from the releases here on GitHub and save on your computer.
 * Press **C** on your keyboard while inside Minecraft Education Editition to open the MakeCode Editor.
@@ -17,7 +17,7 @@
 * Choose the `worldBuilder-<version>.mkcd` file that you saved earlier and press the green button.
 * You will see all the code. Finally press the run icon (the big green playbutton), to activate the script.
 
-### Method 2
+### Method 2 (beta-version)
 
 * Copy all the code from `main.ts`.
 * Press **C** on your keyboard while inside Minecraft Education Editition to open the MakeCode Editor.
