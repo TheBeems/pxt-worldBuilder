@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-05-24
+ * Last modified:   2021-05-25
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.5.4";
+    static sVersion: string = "1.5.5";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -169,6 +169,14 @@ function getMinY(): number { return 0; }
  * @returns the maximum Y
  */
 function getMaxY(): number { return 255; }
+
+
+
+/**
+ * Get the maximum amount of blocks affected by a fill command
+ * @returns the maximum amount of blocks
+ */
+function getMaxFillBlocks(): number { return 32768; }
     
 
 
@@ -359,7 +367,7 @@ namespace marks {
      * @param pMark Position to place the mark
      * @param nMark (optional) a BlockID to use as a mark, default is Data.nMarkBlock
      */
-    function show(pMark: Position, nMark?: number): void {
+    export function show(pMark: Position, nMark?: number): void {
         if (nMark != undefined) {
             blocks.place(nMark, pMark);
         }
@@ -848,12 +856,17 @@ player.onChatCommandCore("set", function(){
  */
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
-       if (marks.check(player.position()) === -1) {
-            //marks.print(true);
+        let pMark = player.position();
+
+        if (marks.check(pMark) === -1) {
+            // only show the mark again if the position is an air-block
+            if (blocks.testForBlock(AIR, pMark)) {
+                marks.show(pMark);
+            }
             console.error (`You need to stand on the mark in order to remove it.`);
         }
         else {
-            marks.remove(player.position());
+            marks.remove(pMark);
         } 
     }
 });
@@ -1353,6 +1366,14 @@ namespace shapes {
         if (Data.aMarks.length > 1) {
             let pFrom = marks.getFirst();
             let pTo = marks.getLast();
+            let nAffected: number = 0;
+
+            nAffected = calcVolume(pFrom, pTo);
+
+            if (nAffected > getMaxFillBlocks()) {
+                console.error(`The area is too big!\nYou want to place ${nAffected} blocks, while 32768 is max. `);
+                return -1;
+            }
     
             blocks.fill(
                 blocks.blockWithData(nBlockID, nBlockData), 
