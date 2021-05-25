@@ -286,6 +286,14 @@ namespace shapes {
         if (Data.aMarks.length > 1) {
             let pFrom = marks.getFirst();
             let pTo = marks.getLast();
+            let nAffected: number = 0;
+
+            nAffected = calcVolume(pFrom, pTo);
+
+            if (nAffected > getMaxFillBlocks()) {
+                console.error(`The area is too big!\nYou want to place ${nAffected} blocks, while 32768 is max. `);
+                return -1;
+            }
     
             blocks.fill(
                 blocks.blockWithData(nBlockID, nBlockData), 
