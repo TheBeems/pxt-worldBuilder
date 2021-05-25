@@ -14,7 +14,7 @@ namespace marks {
      * @param pMark Position to place the mark
      * @param nMark (optional) a BlockID to use as a mark, default is Data.nMarkBlock
      */
-    function show(pMark: Position, nMark?: number): void {
+    export function show(pMark: Position, nMark?: number): void {
         if (nMark != undefined) {
             blocks.place(nMark, pMark);
         }

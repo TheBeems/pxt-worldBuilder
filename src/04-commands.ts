@@ -166,12 +166,17 @@ player.onChatCommandCore("set", function(){
  */
  blocks.onBlockBroken(Data.nMarkBlock, () => {
     if (Data.aMarks.length !== 0) {
-       if (marks.check(player.position()) === -1) {
-            //marks.print(true);
+        let pMark = player.position();
+
+        if (marks.check(pMark) === -1) {
+            // only show the mark again if the position is an air-block
+            if (blocks.testForBlock(AIR, pMark)) {
+                marks.show(pMark);
+            }
             console.error (`You need to stand on the mark in order to remove it.`);
         }
         else {
-            marks.remove(player.position());
+            marks.remove(pMark);
         } 
     }
 });
