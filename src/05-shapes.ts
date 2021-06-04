@@ -291,15 +291,40 @@ namespace shapes {
             nAffected = calcVolume(pFrom, pTo);
 
             if (nAffected > getMaxFillBlocks()) {
-                console.error(`The area is too big!\nYou want to place ${nAffected} blocks, while 32768 is max. `);
-                return -1;
+                let nCountFill = Math.abs(pFrom.getValue(Axis.Y) - pTo.getValue(Axis.Y));
+                
+                console.print(`The area is initially too big! You want to place ${nAffected} blocks.\nWill initiate the fill command a couple of times.`);
+                
+                // make temp To position with lowest Y-value
+                let pToTmp = world(pTo.getValue(Axis.X), pFrom.getValue(Axis.Y) , pTo.getValue(Axis.Z));
+                let pFromTmp = pFrom;
+
+                // first calculate if the square exceeds max amount of blocks for fill command
+                if (calcVolume(pFrom, pToTmp) < getMaxFillBlocks()) {
+                    // loop through the height of the to be filled area
+                    for (let i = 0; i <= nCountFill; i++) {
+                        pFromTmp = world(pFrom.getValue(Axis.X), pFromTmp.getValue(Axis.Y) + 1, pFrom.getValue(Axis.Z));
+                        pToTmp = world(pTo.getValue(Axis.X), pToTmp.getValue(Axis.Y) + 1, pTo.getValue(Axis.Z));
+
+                        blocks.fill(
+                            blocks.blockWithData(nBlockID, nBlockData), 
+                            pFromTmp, pToTmp, 
+                            FillOperation.Replace
+                        );
+                    }
+                }
+                else {
+                    console.error(`Area is still to big!`);
+                    return -1;
+                }
             }
-    
-            blocks.fill(
-                blocks.blockWithData(nBlockID, nBlockData), 
-                pFrom, pTo, 
-                FillOperation.Replace
-            );
+            else {
+                blocks.fill(
+                    blocks.blockWithData(nBlockID, nBlockData), 
+                    pFrom, pTo, 
+                    FillOperation.Replace
+                );
+            }
             
             let msg = `Filled pos(${console.colorize(pFrom)}) to pos(${console.colorize(pTo)}) with blockID: ${console.colorize(nBlockID)}`;
             if (nBlockID >= 65536) {
