@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-05-25
+ * Last modified:   2021-06-04
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,7 +41,7 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.5.5";
+    static sVersion: string = "1.5.6";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
     static aMarks: Position[] = [];
@@ -174,7 +174,7 @@ function getMaxY(): number { return 255; }
 
 /**
  * Get the maximum amount of blocks affected by a fill command
- * @returns the maximum amount of blocks
+ * @returns the maximum amount of blocks, currently 32768
  */
 function getMaxFillBlocks(): number { return 32768; }
     
