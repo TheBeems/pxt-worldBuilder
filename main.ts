@@ -721,6 +721,8 @@ namespace marks {
             "Use 'unmark' to remove the mark on current position.\nUse 'unmark <num>' to remove a mark from the array at index <num>.\nUse 'unmark all' te remove all marks.\nTip: you can also remove a mark by breaking the mark while standing on top of its position."],
         ["clearmarks",
             "The same usuage as 'unmark all'."],
+        ["autoclearmarks",
+            "Toggle between auto clearing the marks after building. Defaults to 'false'."],
         ["Wooden Axe & Diamond Axe",
             "To place a mark or an editMark respectively with the use-key.",
             "EditMarks are especially usefull if you need to alter excisisting blocks or need to copy/paste a wall or building."],
@@ -948,9 +950,11 @@ player.onChatCommandCore("showmarks", function(){
  player.onChatCommandCore("autoclearmarks", function(){
     if (Data.bAutoClearMarks) {
         Data.bAutoClearMarks = false;
+        console.print(`Autoclearmarks after building is set to: ${console.colorize('false')}`);
     }
     else {
         Data.bAutoClearMarks = true;
+        console.print(`Autoclearmarks after building is set to: ${console.colorize('true')}`)
     }
 })
 
