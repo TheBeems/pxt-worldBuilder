@@ -96,6 +96,10 @@ namespace shapes {
         Data.oShape.nBlockID = 0;
         Data.oShape.nBlockData = 0;
         Data.oShape.sAction = "";
+
+        if (Data.bAutoClearMarks) {
+            marks.remove(); // remove all the marks.
+        }
     }
 
 

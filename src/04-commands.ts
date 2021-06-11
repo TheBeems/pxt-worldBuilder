@@ -249,6 +249,23 @@ player.onChatCommandCore("showmarks", function(){
 
 
 
+
+/**
+ * Toggles between auto removing marks after building
+ */
+ player.onChatCommandCore("autoclearmarks", function(){
+    if (Data.bAutoClearMarks) {
+        Data.bAutoClearMarks = false;
+    }
+    else {
+        Data.bAutoClearMarks = true;
+    }
+})
+
+
+
+
+
 /**
  * Toggles between showing and hidding the marks in the world.
  */
