@@ -2,7 +2,7 @@
  * 
  * Author:          TheBeems (Mathijs Beemsterboer)
  * Initial release: 2021-04-07
- * Last modified:   2021-06-04
+ * Last modified:   2021-06-11
  * Description:     Making building inside Minecraft:Education Edition a little easier.
  * 
  */
@@ -41,9 +41,10 @@
  * Class with the Data and settings.
  */
 class Data {
-    static sVersion: string = "1.5.6";
+    static sVersion: string = "1.5.7";
     static bDebug: boolean = true;
     static bShowMark: boolean = true;
+    static bAutoClearMarks: boolean = false;
     static aMarks: Position[] = [];
     static nMarkBlock: number = MAGENTA_CARPET;
     static nBuildBlock: number = GRASS;
@@ -503,6 +504,7 @@ namespace marks {
         }
 
         if (pMark == undefined && nIndex == undefined) {
+            console.print(`Please wait, while the marks are being removed.`);
             // When no position was given, loop to delete all marks.
             while (Data.aMarks.length) {
                 let pMark = marks.getLast();
@@ -939,6 +941,23 @@ player.onChatCommandCore("showmarks", function(){
 
 
 
+
+/**
+ * Toggles between auto removing marks after building
+ */
+ player.onChatCommandCore("autoclearmarks", function(){
+    if (Data.bAutoClearMarks) {
+        Data.bAutoClearMarks = false;
+    }
+    else {
+        Data.bAutoClearMarks = true;
+    }
+})
+
+
+
+
+
 /**
  * Toggles between showing and hidding the marks in the world.
  */
@@ -1176,6 +1195,10 @@ namespace shapes {
         Data.oShape.nBlockID = 0;
         Data.oShape.nBlockData = 0;
         Data.oShape.sAction = "";
+
+        if (Data.bAutoClearMarks) {
+            marks.remove(); // remove all the marks.
+        }
     }
 
 
