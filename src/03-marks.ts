@@ -150,6 +150,7 @@ namespace marks {
         }
 
         if (pMark == undefined && nIndex == undefined) {
+            console.print(`Please wait, while the marks are being removed.`);
             // When no position was given, loop to delete all marks.
             while (Data.aMarks.length) {
                 let pMark = marks.getLast();
