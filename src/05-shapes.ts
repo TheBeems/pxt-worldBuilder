@@ -530,33 +530,22 @@ namespace shapes {
                  * North (negative Z)   West (negative X)   Down (negative Y)
                  * South (positive Z)   East (positive X)   Up (positive Y)
                  */
-                blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, z)), positions.add(pCenter, world(x, nHeight, z)));
-                blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, z)), positions.add(pCenter, world(-x, nHeight, z)));
-                blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, -z)), positions.add(pCenter, world(x, nHeight, -z)));
-                blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, -z)), positions.add(pCenter, world(-x, nHeight, -z)));
-                
-                // calculate amount of blocks placed.
-                nAffected = nAffected * 4;
-                
-                /*for (let y = 0; y < nHeight; ++y) {
-                    if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
-                        //blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
-                        blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, z)), positions.add(pCenter, world(x, nHeight, z)));
-                        ++nAffected;
-                    }
-                    if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
-                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, z)));
-                        ++nAffected;
-                    }
-                    if (sPart == "NE" || sPart == "N" || sPart == "E" || sPart == "F") {
-                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, -z)));
-                        ++nAffected;
-                    }
-                    if (sPart == "NW" || sPart == "N" || sPart == "W" || sPart == "F") {
-                        blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
-                        ++nAffected;
-                    }
-                }*/
+                if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
+                    blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, z)), positions.add(pCenter, world(x, nHeight, z)));
+                    nAffected += nHeight;
+                }
+                if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
+                    blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, z)), positions.add(pCenter, world(-x, nHeight, z)));
+                    nAffected += nHeight;
+                }
+                if (sPart == "NE" || sPart == "N" || sPart == "E" || sPart == "F") {
+                    blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, -z)), positions.add(pCenter, world(x, nHeight, -z)));
+                    nAffected += nHeight;
+                }
+                if (sPart == "NW" || sPart == "N" || sPart == "W" || sPart == "F") {
+                    blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, -z)), positions.add(pCenter, world(-x, nHeight, -z)));
+                    nAffected += nHeight;
+                }
             }
         }
         return nAffected;
