@@ -530,9 +530,18 @@ namespace shapes {
                  * North (negative Z)   West (negative X)   Down (negative Y)
                  * South (positive Z)   East (positive X)   Up (positive Y)
                  */
-                for (let y = 0; y < nHeight; ++y) {
+                blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, z)), positions.add(pCenter, world(x, nHeight, z)));
+                blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, z)), positions.add(pCenter, world(-x, nHeight, z)));
+                blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, -z)), positions.add(pCenter, world(x, nHeight, -z)));
+                blocks.fill(nBlockID, positions.add(pCenter, world(-x, 0, -z)), positions.add(pCenter, world(-x, nHeight, -z)));
+                
+                // calculate amount of blocks placed.
+                nAffected = nAffected * 4;
+                
+                /*for (let y = 0; y < nHeight; ++y) {
                     if (sPart == "SE" || sPart == "S" || sPart == "E" || sPart == "F") {
-                        blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                        //blocks.place(nBlockID, positions.add(pCenter, world(x, y, z)));
+                        blocks.fill(nBlockID, positions.add(pCenter, world(x, 0, z)), positions.add(pCenter, world(x, nHeight, z)));
                         ++nAffected;
                     }
                     if (sPart == "SW" || sPart == "S" || sPart == "W" || sPart == "F") {
@@ -547,7 +556,7 @@ namespace shapes {
                         blocks.place(nBlockID, positions.add(pCenter, world(-x, y, -z)));
                         ++nAffected;
                     }
-                }
+                }*/
             }
         }
         return nAffected;
