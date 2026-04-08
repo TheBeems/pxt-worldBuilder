@@ -1,3 +1,7 @@
+> [!WARNING]
+> This repository is no longer maintained.
+> It is kept here for archival/reference purposes only.
+> 
 # pxt-worldBuilder
 
 *Makes building inside Minecraft:Education Edition a little easier.*
